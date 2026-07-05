@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Hales–Jewett Explorer · [t]ⁿ, lines, colourings</title>
+<meta name="description" content="Interactive 2D/3D grids [t]^n with r-colourings, the four line families, bracket and interval restrictions, and the simplex reduction — companion to the thesis Improving Bounds on Hales–Jewett Numbers (Y. Mouhib, ETH Zürich, 2026).">
+<style>
+:root{
+  --ink:#0f1317; --panel:#151b21; --panel-2:#1b232b; --well:#0b0f13;
+  --hair:#2a333d; --hair-2:#39434e;
+  --chalk:#e9e4d6; --dim:#a7afb8; --faint:#6d7680; --steel:#8ba1b8;
+  --good:#63c08f; --bad:#e07a72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:1240px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ink);color:var(--chalk);font-family:var(--serif);
+  font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+a{color:var(--steel);text-decoration:none;border-bottom:1px solid var(--hair-2)}
+a:hover{color:var(--chalk);border-bottom-color:var(--steel)}
+code,kbd,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--panel-2);padding:.1em .35em;border:1px solid var(--hair);border-radius:4px;white-space:nowrap}
+pre{background:var(--well);border:1px solid var(--hair);border-radius:6px;
+  padding:14px 16px;overflow:auto;font-family:var(--mono);font-size:.8rem;line-height:1.55;color:#cfd6dd}
+pre code{background:none;border:0;padding:0;white-space:pre}
+h1,h2,h3{font-weight:600;line-height:1.15;margin:0}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--faint)}
+.tag{font-family:var(--mono);font-size:.72rem;color:var(--steel);
+  border:1px solid var(--hair-2);border-radius:4px;padding:2px 7px;background:var(--panel);white-space:nowrap}
+button{font-family:var(--mono);font-size:.76rem;color:var(--chalk);
+  background:var(--panel-2);border:1px solid var(--hair-2);border-radius:6px;
+  padding:7px 11px;cursor:pointer;transition:border-color .12s}
+button:hover{border-color:var(--steel)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+select,input[type=text]{font-family:var(--mono);font-size:.78rem;color:var(--chalk);
+  background:var(--well);border:1px solid var(--hair-2);border-radius:6px;padding:7px 9px;width:100%}
+label{display:block}
+
+/* masthead */
+.mast{border-bottom:1px solid var(--hair)}
+.mast .wrap{padding-top:54px;padding-bottom:28px}
+.mast h1{font-size:clamp(38px,5.4vw,58px);font-style:italic;letter-spacing:-.01em}
+.mast .sub{margin-top:12px;color:var(--dim);max-width:64ch}
+.mast .sub em{color:var(--chalk)}
+.ribbon{margin-top:20px;font-family:var(--mono);font-size:.7rem;color:var(--faint);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ribbon b{color:var(--steel);font-weight:500}
+.mast nav{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:.74rem}
+.mast nav a{border-bottom:0;color:var(--dim)} .mast nav a:hover{color:var(--chalk)}
+
+/* theorem plate */
+.plate{border-bottom:1px solid var(--hair);background:linear-gradient(180deg,var(--panel),var(--ink))}
+.plate .wrap{padding:32px 22px;display:grid;grid-template-columns:1.4fr 1fr;gap:30px}
+.plate .thm{font-size:1.1rem;line-height:1.7;max-width:66ch}
+.plate .thm .name{font-style:italic;color:var(--dim)}
+.vals{font-family:var(--mono);font-size:.78rem;color:var(--dim);
+  display:flex;flex-direction:column;gap:8px;justify-content:center}
+.vals b{color:var(--chalk);font-weight:500}
+@media(max-width:900px){.plate .wrap{grid-template-columns:1fr}}
+
+/* prose sections */
+section.prose{border-bottom:1px solid var(--hair)}
+section.prose .wrap{padding:42px 22px}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sechead h2{font-size:clamp(22px,2.6vw,28px);font-style:italic}
+.prose p{max-width:76ch;margin:.7em 0;color:#d4d0c4}
+.prose li{color:#d4d0c4;max-width:72ch;margin:.35em 0}
+.prose b{color:var(--chalk)}
+.smallnote{color:var(--faint);font-size:.85rem;max-width:76ch}
+table.facts{border-collapse:collapse;font-family:var(--mono);font-size:.76rem;margin:14px 0}
+table.facts th,table.facts td{border:1px solid var(--hair);padding:6px 12px;text-align:left;color:var(--dim)}
+table.facts th{color:var(--chalk);font-weight:500;background:var(--panel)}
+table.facts td b{color:var(--chalk);font-weight:500}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:900px){.twocol{grid-template-columns:1fr}}
+
+/* explorer */
+#explorer{border-bottom:1px solid var(--hair);background:var(--well)}
+#explorer>.wrap{padding:32px 22px 40px;max-width:1400px}
+.lab{display:grid;grid-template-columns:290px minmax(0,1fr) 372px;gap:16px;margin-top:16px}
+@media(max-width:1180px){.lab{grid-template-columns:290px minmax(0,1fr)}.dossier{grid-column:1/-1}}
+@media(max-width:820px){.lab{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--hair);border-radius:8px}
+.pane>.ph{padding:9px 14px;border-bottom:1px solid var(--hair);display:flex;
+  justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pane>.ph .eyebrow{color:var(--steel)}
+.pane>.pb{padding:13px 14px}
+.ctl{display:flex;flex-direction:column;gap:17px}
+.ctl-group{display:flex;flex-direction:column;gap:8px}
+.slider-row{display:grid;grid-template-columns:30px 1fr 26px;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.8rem}
+.slider-row .nm{color:var(--dim);font-style:italic;font-family:var(--serif);font-size:1.02rem}
+.slider-row .val{color:var(--chalk);text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hair-2);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--hair-2);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--chalk);border:2px solid var(--steel);margin-top:-6px}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--chalk);border:2px solid var(--steel)}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--hair-2);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:var(--panel);flex:1 1 auto;padding:7px 5px;font-size:.7rem;color:var(--dim)}
+.seg button+button{border-left:1px solid var(--hair)}
+.seg button.on{background:var(--panel-2);color:var(--chalk);box-shadow:inset 0 -2px 0 var(--steel)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{width:25px;height:25px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;
+  box-shadow:0 0 0 1px var(--hair-2)}
+.chip.on{border-color:var(--chalk);box-shadow:0 0 0 2px var(--steel)}
+.checkline{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;color:var(--dim);cursor:pointer}
+.btnrow{display:flex;flex-wrap:wrap;gap:7px}
+.field-note{font-family:var(--mono);font-size:.66rem;color:var(--faint);line-height:1.5}
+
+/* stage */
+.stage-pane{display:flex;flex-direction:column;min-width:0}
+#stage{position:relative;background:radial-gradient(120% 100% at 50% 0%,#131a21,var(--well) 70%);
+  height:min(64vh,590px);min-height:380px;touch-action:none;cursor:grab}
+#stage.grabbing{cursor:grabbing}
+#stage canvas{display:block}
+#tip{position:absolute;pointer-events:none;background:rgba(10,14,18,.95);border:1px solid var(--hair-2);
+  border-radius:6px;padding:7px 10px;font-family:var(--mono);font-size:.7rem;line-height:1.55;
+  color:var(--dim);max-width:260px;z-index:5}
+#tip b{color:var(--chalk);font-weight:500}
+.stagefoot{border-top:1px solid var(--hair)}
+#verdict{font-family:var(--mono);font-size:.82rem}
+#verdict .ok{color:var(--good)} #verdict .no{color:var(--bad)}
+#verdict .sub{color:var(--faint);font-size:.7rem;margin-top:4px;line-height:1.6}
+#colourCounts{margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.68rem;color:var(--dim)}
+.swdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.axiscap{margin-top:8px;font-family:var(--mono);font-size:.64rem;color:var(--faint)}
+
+/* dossier */
+.dossier{display:flex;flex-direction:column;gap:14px;min-width:0}
+table.stats{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem}
+table.stats th{color:var(--faint);font-weight:400;text-align:right;padding:3px 6px;border-bottom:1px solid var(--hair)}
+table.stats th:first-child{text-align:left}
+table.stats td{padding:5px 6px;text-align:right;color:var(--dim);border-bottom:1px solid var(--hair);cursor:pointer}
+table.stats td:first-child{text-align:left;color:var(--chalk)}
+table.stats tr.on td{background:var(--panel-2)}
+table.stats tr:hover td{background:var(--panel-2)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.dot.ok{background:var(--good)} .dot.no{background:var(--bad)}
+.lista{display:flex;flex-direction:column;max-height:190px;overflow:auto;font-family:var(--mono);font-size:.72rem}
+.lista .li{padding:5px 7px;border-bottom:1px solid var(--hair);color:var(--dim);cursor:pointer;display:flex;gap:8px;align-items:center}
+.lista .li:hover,.lista .li:focus{background:var(--panel-2);color:var(--chalk);outline:none}
+.lista .li .sw{width:9px;height:9px;border-radius:2px;flex:none}
+canvas.panel2d{width:100%;display:block;background:var(--well);border:1px solid var(--hair);border-radius:6px}
+.info-line{font-family:var(--mono);font-size:.68rem;color:var(--dim);margin-top:8px;min-height:1.2em;line-height:1.6}
+.info-line b{color:var(--chalk);font-weight:500}
+.info-line .ok{color:var(--good)} .info-line .no{color:var(--bad)}
+#lablog{display:flex;flex-direction:column-reverse;gap:6px;max-height:220px;overflow:auto;
+  font-family:var(--mono);font-size:.68rem;color:var(--dim);line-height:1.55}
+#lablog .ent{border-left:2px solid var(--hair-2);padding-left:9px}
+#lablog .ent b{color:var(--chalk);font-weight:500}
+#lablog .ent .tm{color:var(--faint)}
+
+/* dialog */
+dialog{background:var(--panel);color:var(--chalk);border:1px solid var(--hair-2);border-radius:8px;
+  padding:18px;max-width:560px;width:92vw}
+dialog::backdrop{background:rgba(5,8,11,.7)}
+dialog textarea{width:100%;min-height:150px;background:var(--well);color:var(--chalk);
+  border:1px solid var(--hair-2);border-radius:6px;font-family:var(--mono);font-size:.72rem;padding:9px}
+
+#comments-thread{min-height:150px}
+#comments-thread .utterances{max-width:100%;margin:0}
+footer{padding:36px 0 60px;color:var(--faint);font-size:.85rem}
+footer .wrap{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow">Ramsey theory · an instrument for [t]ⁿ</div>
+    <h1>The Hales–Jewett Explorer</h1>
+    <p class="sub">Grids, lines and colourings from <em>Improving Bounds on Hales–Jewett Numbers:
+      Symmetric Colorings, SAT Solvers, Line-Family Variants, and Forcing Structures</em> —
+      Y.&nbsp;Mouhib, ETH Zürich, 2026. Everything on this page is computed live from the
+      definitions in the thesis; the Python versions of every check live in
+      <a href="python/">python/</a>.</p>
+    <div class="ribbon">certificate · ω=(0,2,3,5) · χ = <b>10100111100100 0100111100 10</b> (mod 26)
+      · line-free on [4]¹³ · <b>HJ(4,2) ≥ 14</b> — Theorem 3.10</div>
+    <nav>
+      <a href="#explorer">explorer</a><a href="#lines">the four line families</a>
+      <a href="#symmetry">the simplex reduction</a><a href="#rado">Rado equations</a>
+      <a href="#graphs">forcing graphs (Ch. 7)</a><a href="#variants">bracket &amp; interval</a>
+      <a href="#census">census &amp; records</a><a href="#python">python</a><a href="#comments">comments</a>
+    </nav>
+  </div>
+</header>
+
+<div class="plate">
+  <div class="wrap">
+    <div class="thm">
+      <span class="name">Theorem (Hales–Jewett, 1963).</span>
+      For all <i>t</i>,&nbsp;<i>r</i> ≥ 1 there is an <i>n</i> such that every
+      <i>r</i>-colouring of the grid [<i>t</i>]<sup><i>n</i></sup> contains a monochromatic
+      combinatorial line. The least such <i>n</i> is the Hales–Jewett number
+      HJ(<i>t</i>,&nbsp;<i>r</i>).
+    </div>
+    <div class="vals">
+      <span>HJ(2, r) = <b>r</b> &nbsp;·&nbsp; HJ(3, 2) = <b>4</b> (Hindman–Tressler)</span>
+      <span>HJ(3, 3) ≥ <b>22</b> &nbsp;·&nbsp; HJ(4, 2) ≥ <b>14</b> &nbsp;(this thesis, Thms 3.7 / 3.10)</span>
+      <span>14 ≤ HJ(4) &lt; <b>10¹¹</b> (Lavrov) — for t ≥ 4 no exact value is known</span>
+    </div>
+  </div>
+</div>
+
+<section id="explorer">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">c : [t]ⁿ → [r]</span><h2>The explorer</h2></div>
+    <p class="smallnote">Drag to orbit, scroll or pinch to zoom. Click a point to paint it with the
+      selected colour (with <i>orbit paint</i> on, its whole S<sub>n</sub>-orbit is painted).
+      Hover points, lines, simplex cells and list entries — the three views are linked:
+      grid → type simplex → weight levels, the reduction chain of Chapters 2–3.</p>
+
+    <div class="lab">
+
+      <!-- ─── controls ─── -->
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Instrument</span></div>
+        <div class="pb ctl">
+
+          <div class="ctl-group">
+            <span class="eyebrow">Parameters</span>
+            <div class="slider-row"><span class="nm">t</span>
+              <input type="range" id="sl-t" min="2" max="4" step="1" value="3"
+                     aria-label="alphabet size t"><span class="val" id="v-t">3</span></div>
+            <div class="slider-row"><span class="nm">n</span>
+              <input type="range" id="sl-n" min="1" max="3" step="1" value="3"
+                     aria-label="dimension n"><span class="val" id="v-n">3</span></div>
+            <div class="slider-row"><span class="nm">r</span>
+              <input type="range" id="sl-r" min="1" max="6" step="1" value="2"
+                     aria-label="number of colours r"><span class="val" id="v-r">2</span></div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Colouring</span>
+            <div class="btnrow">
+              <button id="b-random">Random</button>
+              <button id="b-randsym">Random symmetric</button>
+              <button id="b-clear">Clear</button>
+            </div>
+            <label>preset certificates
+              <select id="sel-preset" aria-label="preset colourings"></select></label>
+            <button id="b-preset">Load preset</button>
+            <div class="field-note" id="preset-note"></div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">One-weight c<sub>ω,χ</sub> (Def. 2.6)</span>
+            <label>weight ω <input type="text" id="in-omega" value="0, 5, 7" spellcheck="false"></label>
+            <label>palette χ
+              <select id="sel-chi">
+                <option value="random">random on realised levels</option>
+                <option value="periodic" selected>periodic pattern (mod m)</option>
+                <option value="modr">x mod r</option>
+              </select></label>
+            <label id="lbl-pattern">pattern
+              <input type="text" id="in-pattern" value="1,0,0,1,0,1,0,0,1,2,2,2,2" spellcheck="false"></label>
+            <button id="b-ow">Apply one-weight colouring</button>
+            <div class="field-note">sum-type = ω (1, 2, …, t). Repeated values in ω are allowed
+              (degenerate weights, Rem. 7.23).</div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Lines</span>
+            <div class="seg" id="seg-family" role="group" aria-label="line family">
+              <button data-v="comb" class="on">comb</button><button data-v="unit">unit</button>
+              <button data-v="geom">geom</button><button data-v="cyc">cyclic</button>
+            </div>
+            <div class="seg" id="seg-restrict" role="group" aria-label="line restriction">
+              <button data-v="all" class="on">all lines</button>
+              <button data-v="K">L<sup>[K]</sup></button>
+              <button data-v="q">L<sup>(q)</sup></button>
+            </div>
+            <div class="slider-row" id="row-Kq" hidden><span class="nm" id="nm-Kq">K</span>
+              <input type="range" id="sl-Kq" min="1" max="3" step="1" value="1"
+                     aria-label="restriction parameter"><span class="val" id="v-Kq">1</span></div>
+            <div class="seg" id="seg-display" role="group" aria-label="which lines to draw">
+              <button data-v="mono">mono only</button><button data-v="all" class="on">draw all</button>
+              <button data-v="hover">at hover</button><button data-v="none">none</button>
+            </div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Paint</span>
+            <div class="chips" id="chips"></div>
+            <label class="checkline"><input type="checkbox" id="ck-orbit">
+              orbit paint — recolour the whole type class</label>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Tools</span>
+            <div class="btnrow">
+              <button id="b-find">Find line-free</button>
+              <button id="b-diag">Find diagonal-only</button>
+            </div>
+            <div class="btnrow">
+              <button id="b-countsym">Count symmetric line-free</button>
+              <button id="b-countall">Count all line-free</button>
+              <button id="b-minmono">Min # mono lines</button>
+            </div>
+            <div class="btnrow">
+              <button id="b-export">Export JSON</button>
+              <button id="b-import">Import…</button>
+            </div>
+            <div class="field-note">Exports match the input format of
+              <span class="mono">python/check_line_free.py</span>. Searches and counts run
+              exactly (backtracking) with a time budget.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ─── stage ─── -->
+      <div class="pane stage-pane">
+        <div class="ph"><span class="eyebrow">the grid <span class="mono" id="gridLabel"></span></span>
+          <span class="mono" id="lineTally" style="font-size:.68rem;color:var(--faint)"></span></div>
+        <div id="stage"><div id="tip" hidden></div></div>
+        <div class="pb stagefoot">
+          <div id="verdict"></div>
+          <div id="colourCounts"></div>
+          <div class="axiscap">axes: coordinate 1 →&nbsp; coordinate 2 ↑&nbsp; coordinate 3 ⊙ out of plane
+            &nbsp;·&nbsp; letters 1…t &nbsp;·&nbsp; in the cyclic families [t] ≅ ℤ<sub>t</sub> via t ↔ 0</div>
+        </div>
+      </div>
+
+      <!-- ─── dossier ─── -->
+      <div class="dossier">
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Families — live census</span>
+            <span class="mono" id="formulaOK" style="font-size:.66rem;color:var(--faint)"></span></div>
+          <div class="pb"><table class="stats" id="famTable"></table>
+            <div class="info-line">rows are clickable · counts verified against the closed forms of §6.1</div></div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Monochromatic lines</span><span class="mono" id="monoCount"></span></div>
+          <div class="pb"><div class="lista" id="monoList"></div>
+            <div class="info-line" id="rainbowNote"></div></div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Type simplex T<span class="mono" id="simplexLabel"></span></span></div>
+          <div class="pb">
+            <canvas id="simplex" class="panel2d" height="230"></canvas>
+            <div class="info-line" id="cellInfo">hover a cell — its S<sub>n</sub>-orbit lights up in the grid</div>
+            <div class="info-line" id="cornerInfo"></div>
+          </div>
+        </div>
+
+        <div class="pane" id="stripPane" hidden>
+          <div class="ph"><span class="eyebrow">Weight levels ⟨ω, type⟩</span><span class="mono" id="stripLabel"></span></div>
+          <div class="pb">
+            <canvas id="strip" class="panel2d" height="74"></canvas>
+            <div class="info-line" id="stripInfo">hover a combinatorial line — its homothet b + k·S<sub>ω</sub> appears here (Lemma 2.14)</div>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Lab notebook</span></div>
+          <div class="pb"><div id="lablog" aria-live="polite"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<dialog id="dlg-import">
+  <h3 style="font-style:italic;margin-bottom:10px">Import a colouring</h3>
+  <p class="smallnote" style="margin:0 0 10px">Paste JSON as produced by <b>Export</b> or by
+    <span class="mono">python/check_line_free.py</span>:
+    <span class="mono">{"t":3,"n":3,"r":2,"colours":[…]}</span></p>
+  <textarea id="import-text" spellcheck="false"></textarea>
+  <div class="btnrow" style="margin-top:12px;justify-content:flex-end">
+    <button id="b-import-cancel">Cancel</button>
+    <button id="b-import-load">Load</button>
+  </div>
+</dialog>
+
+<section class="prose" id="lines">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">L(τ), L^cyc, L^unit, L^geom</span><h2>The four line families</h2></div>
+    <div class="twocol">
+      <div>
+        <p>A <b>combinatorial line</b> is generated by a root τ ∈ ([t] ∪ {∗})ⁿ with at least one ∗:
+          the line L<sub>τ</sub> = {τ(1), …, τ(t)} replaces every ∗ by the letter a. Over [4], the
+          root <code>2∗1∗</code> generates {2111, 2212, 2313, 2414}. Its <b>active set</b> I(τ) is
+          the set of starred coordinates; the all-active line is the <b>diagonal</b>.</p>
+        <p>Chapter 6 relaxes the rigid ascent. Identify [t] with ℤ<sub>t</sub> (letter t ↔ 0) and
+          take cosets L = a + ⟨v⟩ of order-t cyclic subgroups: <b>cyclic lines</b> use any valid
+          direction v ∈ (ℤ<sub>t</sub><sup>×</sup> ∪ {0})ⁿ \ {0}; <b>unit lines</b> restrict to
+          v ∈ {0,1}ⁿ; <b>geometric lines</b> to v ∈ {−1,0,1}ⁿ — the ±-roots where ∗ ascends and
+          ∗̄ descends, i.e. the tic-tac-toe lines. The containments (6.1) hold:
+          comb ⊆ unit, geom ⊆ cyclic, and for t ≥ 3 unit and geometric are incomparable.</p>
+      </div>
+      <div>
+        <table class="facts">
+          <tr><th>family</th><th>count in [t]ⁿ</th><th>drawn as</th></tr>
+          <tr><td>combinatorial</td><td>(t+1)ⁿ − tⁿ</td><td>ascending diagonals</td></tr>
+          <tr><td>geometric</td><td>((t+2)ⁿ − tⁿ)/2</td><td>± diagonals</td></tr>
+          <tr><td>unit-cyclic</td><td>(2ⁿ − 1)·tⁿ⁻¹</td><td>may wrap mod t</td></tr>
+          <tr><td>cyclic</td><td>((φ+1)ⁿ − 1)/φ · tⁿ⁻¹</td><td>cosets, φ = |ℤ<sub>t</sub><sup>×</sup>|</td></tr>
+        </table>
+        <p class="smallnote">The explorer enumerates each family from the definition and checks the
+          count against the formula on every parameter change. Already at (3, 2) the four numbers
+          separate completely: HJ<sub>cyc</sub>(3,2) = 2 &lt; HJ<sub>unit</sub> = HJ<sub>geom</sub>(3,2) = 3
+          &lt; HJ(3,2) = 4 — try t = 3, n = 2, family <i>cyclic</i>, then <b>Find line-free</b>:
+          the search proves none exists, and <b>Min # mono lines</b> returns 2 (Prop. 7.9).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="symmetry">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">type : [t]ⁿ → T⁽ᵗ⁾ₙ · ⟨ω, ·⟩</span><h2>The simplex reduction, one-weight colourings, and the records</h2></div>
+    <div class="twocol">
+      <div>
+        <p>A colouring invariant under all coordinate permutations factors through the
+          <b>type map</b> w ↦ (a₁, …, a<sub>t</sub>), the letter counts, onto the simplex
+          T⁽ᵗ⁾ₙ of size C(n+t−1, t−1) — polynomial against the tⁿ words (Lemma 2.4). On the
+          simplex, a line with k active coordinates and inactive type v becomes the
+          <b>corner tuple</b> C<sub>k,v</sub> = {v + k·e₁, …, v + k·e<sub>t</sub>}, and
+          <b>Lemma 3.1</b> says: the symmetric colouring is line-free iff no corner tuple is
+          monochromatic. The simplex panel above performs exactly this check and stays in sync
+          with the grid.</p>
+        <p>A <b>one-weight colouring</b> reads a single integer weight,
+          c<sub>ω,χ</sub>(w) = χ(⟨ω, type(w)⟩); sum-type is ω = (1, …, t), where the level is
+          σ(w). Under it a line carries the <b>homothet</b> b + k·S<sub>ω</sub> of the weight
+          set (Lemma 2.14) — the level strip shows this. By the radix argument
+          (<b>Theorem 3.5</b>) one-weight colourings realise the <i>entire</i> symmetric class
+          in every fixed dimension: the hierarchy sum ⊆ ow ⊆ sym is flat above ow.</p>
+      </div>
+      <div>
+        <p>The quantitative payoff of the thesis: single explicit weights give the records
+          <b>HJ(3,3) ≥ 22</b> via ω = (0, 1, 29) and <b>HJ(4,2) ≥ 14</b> via ω = (0, 2, 3, 5)
+          with a 26-periodic palette. Load the presets <i>Record palette mod 26</i> (t = 4) and
+          <i>ω=(0,5,7), ψ mod 13</i> (t = 3): both are line-free on every grid this page can
+          show, and the second avoids monochromatic lines with ≤ 12 active coordinates in
+          <i>every</i> dimension (Thm 4.10).</p>
+        <table class="facts">
+          <tr><th>certificate ladder at (3,3)</th><th>reach</th></tr>
+          <tr><td>arithmetic closed form (van der Waerden)</td><td>13</td></tr>
+          <tr><td>triples {0,1,3}, {0,1,4}</td><td>14</td></tr>
+          <tr><td>49-cell periodic palette</td><td>15</td></tr>
+          <tr><td>length-76 interval certificate, G₃({0,2,5}) ≥ 77</td><td>16</td></tr>
+          <tr><td><b>253-cell radix table (Table A.1)</b></td><td><b>22</b></td></tr>
+        </table>
+        <p class="smallnote">The preset <i>Record slice (Table A.1)</i> restricts that 253-cell
+          witness to [3]³ by the monotonicity shift of Lemma 3.3.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="prose" id="rado">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">E<sub>s</sub> · b + k·S</span><h2>Homothets and the Rado reading (§2.4)</h2></div>
+    <div class="pane" style="margin:8px 0 22px">
+      <div class="ph"><span class="eyebrow">Live — derived from the explorer's weight</span></div>
+      <div class="pb">
+        <div class="info-line" id="radoS"></div>
+        <div class="info-line" id="radoEq" style="margin-top:10px"></div>
+        <canvas id="radoStrip" class="panel2d" height="74" style="margin-top:12px"></canvas>
+        <div class="info-line" id="radoCounts" style="margin-top:8px"></div>
+        <div class="info-line" id="radoBound" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="twocol">
+      <div>
+        <p>Under a one-weight colouring, a line with k active coordinates and inactive type v
+          carries the <b>homothet</b> ⟨ω,v⟩ + k·S<sub>ω</sub> of the weight set
+          (Lemma 2.14) — line-freeness on the grid is homothety-avoidance on ℤ.
+          <b>Proposition 2.19</b> gives the algebraic form: for S = {s₁ &lt; … &lt; s<sub>t</sub>}
+          there is a homogeneous system E<sub>s</sub> of t − 2 equations, each with
+          coefficient sum zero — hence partition regular by Rado's criterion — whose integer
+          solutions are exactly a·<b>1</b> + d·<b>s</b>. The injective ones (d ≠ 0) are, as
+          sets, the homothets of S for d ≥ 1 and of the reflected −S for d ≤ −1.</p>
+        <p><b>Example 2.20.</b> For S = {0,1,3} the system is the single equation
+          <code>z + 2x = 3y</code>, whose injective solutions are the triples
+          {a, a+d, a+3d}. Since the grid realises only positive scales, the search for a
+          line-free one-weight colouring at ω = (0,1,3) is homothety-avoidance for
+          {0,1,3} <i>alone</i>, whereas the Rado number of the equation demands avoiding the
+          reflected pattern {0,2,3} as well. The live panel above counts both on the current
+          palette — the two can genuinely differ.</p>
+      </div>
+      <div>
+        <p><b>Remark 2.24 (a correction).</b> An explicit 4-colouring of 56 consecutive
+          integers is free of monochromatic injective solutions of <code>z + 2x = 3y</code> —
+          both patterns at once — giving <b>R₄(z + 2x = 3y) ≥ 57</b> and refuting the
+          reported values R₄ = 44 and N<sub>max</sub>(3,4) = 43 of Dumitru–Prunescu. The
+          window certificate for {0,1,3}-avoidance alone reaches length 93
+          (G₄({0,1,3}) ≥ 94), yet its grid bound of 31 is weaker than the van der Waerden
+          shadow HJ(3,4) ≥ 38 — the two thresholds are distinct.</p>
+        <p>Through <b>Theorem 2.15</b> every pattern carries a lower bound,
+          HJ(t, r) ≥ ⌈(G<sub>r</sub>(S) − 1)/D<sub>S</sub>⌉, with van der Waerden as the
+          arithmetic case; the panel matches your current S₀ against the Gallai numbers
+          computed in the thesis (Table 2.1): G₃({0,1,3}) = 42, G₃({0,1,4}) = 57,
+          G₃({0,2,5}) ≥ 77, G₂({0,2,3,5}) = 67, G₂({0,1,5,6}) = 80.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="graphs">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">G([t]ⁿ) · Q([t]ⁿ) · C⁽ᵗ⁾ₙ</span><h2>Forcing structures: the graphs of Chapter 7</h2></div>
+    <p>An upper bound HJ(t,r) ≤ n is a statement about <i>structures</i>: which subfamilies of
+      lines force a monochromatic line under every colouring. Both panels below are computed
+      live from the colouring in the explorer — recolour above and watch them change.</p>
+    <div class="twocol" style="align-items:start">
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Intersection graph G([t]ⁿ) — §7.1–7.2</span></div>
+        <div class="pb">
+          <canvas id="igraph" class="panel2d" height="340"></canvas>
+          <div class="info-line" id="igraphInfo"></div>
+        </div>
+      </div>
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Corner hypergraph C⁽ᵗ⁾ₙ — §7.3</span>
+          <button id="b-k4">show the clean K (Prop. 7.26)</button></div>
+        <div class="pb">
+          <canvas id="chyper" class="panel2d" height="340"></canvas>
+          <div class="info-line" id="chyperInfo"></div>
+          <div class="info-line" id="chyperStats" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="twocol" style="margin-top:24px">
+      <div>
+        <p>For t = 2 the responsible structure is a <b>clique</b>: G₂(n) is the comparability
+          graph of the Boolean lattice, its cliques are the chains, and Mirsky's theorem gives
+          χ = n+1, whence HJ(2,r) = r (Prop. 7.1) — set t = 2 above to see the pigeonhole
+          chain. For t ≥ 3 vertices are the lines and each edge carries its unique
+          intersection word (linearity, Lemma 7.3); a colouring of the grid induces the edge
+          colouring c̃(e) = c(x<sub>e</sub>), and a line is monochromatic iff its
+          <b>star</b> is (Lemma 7.5) — hover a vertex to watch the dictionary verify itself.
+          Hovering an edge shows its <b>coherence class</b>: edges sharing a word must share a
+          colour, and Prop. 7.6 shows this constraint is the entire content — random
+          non-coherent edge colourings avoid monochromatic stars in abundance. No pigeonhole
+          certificate survives at t ≥ 3: the line hypergraph has no K⁽ᵗ⁾<sub>t+1</sub>
+          (Prop. 7.7) and, over 𝔽₃, no Fano plane (Prop. 7.8) — forcing families are large
+          asymmetric cores (67 lines on 52 words already at [3]⁴, Prop. 7.10).</p>
+      </div>
+      <div>
+        <p>Quotienting by the coordinate action turns the symmetric problem into the
+          <b>corner hypergraph</b> C⁽ᵗ⁾ₙ: cells of the simplex as vertices, corner tuples as
+          edges — a linear t-uniform hypergraph in which every cell lies in exactly n edges
+          and each <b>pencil</b> is a complete Kₙ (Lemma 7.19); for t = 3 it is exactly the
+          corners configuration of Ajtai–Szemerédi. Its weak chromatic threshold <i>is</i> the
+          symmetric Hales–Jewett number (Thm 7.21 ii). The toggle exhibits Prop. 7.26: a
+          loopless, cell-rainbow K<sub>t+1</sub> persisting in every dimension — while
+          globally, any clean graph model is degree-starved above n = 2 (Prop. 7.27).</p>
+        <p>The reformulation pays asymptotically: the Lovász Local Lemma on C⁽ᵗ⁾ₙ gives
+          HJ<sub>sym</sub>(t, r) ≥ 2 + ⌊(r<sup>t−1</sup>/e − 1)/t⌋ = Ω(r<sup>t−1</sup>/t)
+          in two lines (Thm 7.28) — <span class="mono" id="lllVal"></span> — and the
+          quasipolynomial corners theorem transfers to
+          e<sup>c·log²r</sup> ≤ HJ<sub>sym</sub>(3, r) ≤ e<sup>(log r)^C</sup> (Thm 7.31),
+          making the extremality conjecture falsifiable on the asymptotic axis
+          (Cor. 7.32).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="variants">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">L^[K] · L^(q) · κ, λ</span><h2>Bracket and interval restrictions</h2></div>
+    <div class="twocol">
+      <div>
+        <p><b>L<sup>[K]</sup></b> keeps the lines with at most K active coordinates,
+          <b>L<sup>(q)</sup></b> those whose active set is a union of ≤ q subintervals of [n]
+          (for the coset families, "active set" = support of the direction). The parity colouring
+          σ mod 2 kills every line of L<sup>[1]</sup> in any dimension (Prop. 4.1) — load the
+          <i>Parity</i> preset and set the restriction to K = 1. The bracket ceilings are known
+          exactly at small parameters: κ<sub>sum</sub>(3,3) = 11, κ<sub>sum</sub>(4,2) = 10,
+          κ<sub>sum</sub>(4,3) = 96, and non-arithmetic periodic weights pass the van der
+          Waerden ceiling: HJ<sup>[12]</sup>(3,3) = HJ<sup>[12]</sup>(4,2) = ∞ (Thms 4.10, 4.11 —
+          both loadable above).</p>
+      </div>
+      <div>
+        <p>The interval axis is transverse: symmetric colourings are provably blind to it,
+          HJ<sup>(q)</sup><sub>sym</sub> = HJ<sub>sym</sub> for every q (Prop. 4.15) — the
+          <b>Count symmetric line-free</b> tool therefore ignores an interval restriction and
+          says why. The ceiling λ(3, r) equals r − 1 for odd and r − 2 for even r
+          (Prop. 4.19), and the first nontrivial exact interval value is
+          <b>HJ<sup>(1)</sup>(3) = 5</b> against HJ(3) = 4 (Thm 4.20).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="census">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">#</span><h2>Census &amp; records — and how this page re-proves them</h2></div>
+    <div class="twocol">
+      <div>
+        <table class="facts">
+          <tr><th colspan="2">line-free 2-colourings of [3]³ (Table A.5)</th></tr>
+          <tr><td>total</td><td><b>1644</b> (822 complementary pairs)</td></tr>
+          <tr><td>symmetric (= one-weight), stabiliser S₃</td><td><b>36</b></td></tr>
+          <tr><td>· of which sum-type</td><td><b>16</b></td></tr>
+          <tr><td>· non-arithmetic one-weight</td><td><b>20</b></td></tr>
+          <tr><td>block-symmetric, stabiliser C₂</td><td><b>504</b></td></tr>
+          <tr><td>cyclic, stabiliser C₃</td><td><b>24</b></td></tr>
+          <tr><td>asymmetric</td><td><b>1080</b></td></tr>
+          <tr><td>diagonal-only colourings (Table A.6)</td><td><b>6456</b></td></tr>
+        </table>
+        <p class="smallnote">At t = 3, n = 3, r = 2: <b>Count all line-free</b> returns 1644 and
+          <b>Count symmetric line-free</b> returns 36, exactly — both by backtracking from the
+          definitions, no solver. The verdict banner names the stabiliser class of whatever
+          colouring is on screen, in the vocabulary of the census. <b>Find diagonal-only</b>
+          produces a witness whose unique monochromatic line is the diagonal
+          (Conjecture 4.23's objects).</p>
+      </div>
+      <div>
+        <table class="facts">
+          <tr><th>(t, r)</th><th>HJ</th><th>HJ<sub>geom</sub></th><th>HJ<sub>unit</sub></th><th>HJ<sub>cyc</sub></th></tr>
+          <tr><td>(2, r)</td><td>r</td><td colspan="3">⌈log₂(r+1)⌉ (all three coincide)</td></tr>
+          <tr><td>(3, 2)</td><td><b>4</b></td><td><b>3</b></td><td><b>3</b></td><td><b>2</b></td></tr>
+          <tr><td>(4, 2)</td><td>≥ 14</td><td>—</td><td>≥ 5</td><td>—</td></tr>
+        </table>
+        <p class="smallnote">Table 6.1: the cyclic numbers are logarithmic in r while the
+          classical ones grow at least linearly — a cyclic lower-bound colouring can never
+          transfer. Try t = 2: any two distinct points of ℤ₂ⁿ form a unit line, so line-free =
+          injective and the threshold is ⌈log₂(r+1)⌉ (Prop. 6.1). The rainbow counter in the
+          dossier is the anti-Ramsey side: ah(3, 4) ≥ 25 (Prop. 5.9).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="python">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">&gt;&gt;&gt;</span><h2>Check colourings in Python</h2></div>
+    <p><span class="mono">python/hj.py</span> mirrors everything on this page — words, the four
+      families, restrictions, colouring classes, the simplex reduction, and exact backtracking
+      counters. Three ready-made programs:</p>
+    <pre><code># is a colouring line-free?  (reads the JSON exported by this page)
+python3 python/check_line_free.py my_colouring.json
+python3 python/check_line_free.py --demo          # run the thesis certificates
+
+# reproduce the [3]^3 census of Appendix A.4:  1644 / 36 / 16 / 504 / 24 / 1080 / 6456
+python3 python/census_333.py
+
+# verify every certificate embedded in this page, and the family count formulas
+python3 python/examples.py</code></pre>
+    <p class="smallnote">A quick line-free check in three lines:</p>
+    <pre><code>import hj
+col = hj.sum_type_colouring(3, 3, lambda s: (s % 4) // 2)   # Prop. 3.14
+print(hj.is_line_free(col, 3, 3))                            # True → HJ(3,2) = 4</code></pre>
+  </div>
+</section>
+
+
+<section class="prose" id="comments">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">✎</span><h2>Comments</h2></div>
+    <p class="smallnote">Comments are GitHub issues on this repository, rendered by
+      <a href="https://utteranc.es">utterances</a>; posting needs a GitHub login. If the box
+      below is empty, the one-time activation (installing the utterances app on the repo) is
+      step 8 of the README — nothing else to configure.</p>
+    <div id="comments-thread">
+      <script src="https://utteranc.es/client.js"
+              repo="ysmouhib/hales-jewett-explorer"
+              issue-term="pathname"
+              theme="github-dark"
+              crossorigin="anonymous"
+              async>
+      </script>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Built as a companion to the thesis; records also appear in the note
+      <a href="https://arxiv.org/abs/2606.22155">arXiv:2606.22155</a> (Mouhib–Halbeisen).
+      Certificates and SAT logs: <a href="https://github.com/ysmouhib/hj-certificates">ysmouhib/hj-certificates</a>.</div>
+    <div>Source of this page: <a href="https://github.com/ysmouhib/hales-jewett-explorer">ysmouhib/hales-jewett-explorer</a>
+      — deployment steps in the README. Colour palette: Okabe–Ito (colour-blind safe).</div>
+  </div>
+</footer>
+
+<script>
+/*__HJ_CORE__*/
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/*__APP__*/
+</script>
+<script>
+/*__EXTRAS__*/
+</script>
+</body>
+</html>

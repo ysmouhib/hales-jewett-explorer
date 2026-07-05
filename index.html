@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Hales–Jewett Explorer · [t]ⁿ, lines, colourings</title>
+<meta name="description" content="Interactive 2D/3D grids [t]^n with r-colourings, the four line families, bracket and interval restrictions, and the simplex reduction — companion to the thesis Improving Bounds on Hales–Jewett Numbers (Y. Mouhib, ETH Zürich, 2026).">
+<style>
+:root{
+  --ink:#0f1317; --panel:#151b21; --panel-2:#1b232b; --well:#0b0f13;
+  --hair:#2a333d; --hair-2:#39434e;
+  --chalk:#e9e4d6; --dim:#a7afb8; --faint:#6d7680; --steel:#8ba1b8;
+  --good:#63c08f; --bad:#e07a72;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"URW Palladio L",P052,Georgia,serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --maxw:1240px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ink);color:var(--chalk);font-family:var(--serif);
+  font-size:16.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+a{color:var(--steel);text-decoration:none;border-bottom:1px solid var(--hair-2)}
+a:hover{color:var(--chalk);border-bottom-color:var(--steel)}
+code,kbd,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--panel-2);padding:.1em .35em;border:1px solid var(--hair);border-radius:4px;white-space:nowrap}
+pre{background:var(--well);border:1px solid var(--hair);border-radius:6px;
+  padding:14px 16px;overflow:auto;font-family:var(--mono);font-size:.8rem;line-height:1.55;color:#cfd6dd}
+pre code{background:none;border:0;padding:0;white-space:pre}
+h1,h2,h3{font-weight:600;line-height:1.15;margin:0}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--faint)}
+.tag{font-family:var(--mono);font-size:.72rem;color:var(--steel);
+  border:1px solid var(--hair-2);border-radius:4px;padding:2px 7px;background:var(--panel);white-space:nowrap}
+button{font-family:var(--mono);font-size:.76rem;color:var(--chalk);
+  background:var(--panel-2);border:1px solid var(--hair-2);border-radius:6px;
+  padding:7px 11px;cursor:pointer;transition:border-color .12s}
+button:hover{border-color:var(--steel)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+select,input[type=text]{font-family:var(--mono);font-size:.78rem;color:var(--chalk);
+  background:var(--well);border:1px solid var(--hair-2);border-radius:6px;padding:7px 9px;width:100%}
+label{display:block}
+
+/* masthead */
+.mast{border-bottom:1px solid var(--hair)}
+.mast .wrap{padding-top:54px;padding-bottom:28px}
+.mast h1{font-size:clamp(38px,5.4vw,58px);font-style:italic;letter-spacing:-.01em}
+.mast .sub{margin-top:12px;color:var(--dim);max-width:64ch}
+.mast .sub em{color:var(--chalk)}
+.ribbon{margin-top:20px;font-family:var(--mono);font-size:.7rem;color:var(--faint);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ribbon b{color:var(--steel);font-weight:500}
+.mast nav{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:.74rem}
+.mast nav a{border-bottom:0;color:var(--dim)} .mast nav a:hover{color:var(--chalk)}
+
+/* theorem plate */
+.plate{border-bottom:1px solid var(--hair);background:linear-gradient(180deg,var(--panel),var(--ink))}
+.plate .wrap{padding:32px 22px;display:grid;grid-template-columns:1.4fr 1fr;gap:30px}
+.plate .thm{font-size:1.1rem;line-height:1.7;max-width:66ch}
+.plate .thm .name{font-style:italic;color:var(--dim)}
+.vals{font-family:var(--mono);font-size:.78rem;color:var(--dim);
+  display:flex;flex-direction:column;gap:8px;justify-content:center}
+.vals b{color:var(--chalk);font-weight:500}
+@media(max-width:900px){.plate .wrap{grid-template-columns:1fr}}
+
+/* prose sections */
+section.prose{border-bottom:1px solid var(--hair)}
+section.prose .wrap{padding:42px 22px}
+.sechead{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.sechead h2{font-size:clamp(22px,2.6vw,28px);font-style:italic}
+.prose p{max-width:76ch;margin:.7em 0;color:#d4d0c4}
+.prose li{color:#d4d0c4;max-width:72ch;margin:.35em 0}
+.prose b{color:var(--chalk)}
+.smallnote{color:var(--faint);font-size:.85rem;max-width:76ch}
+table.facts{border-collapse:collapse;font-family:var(--mono);font-size:.76rem;margin:14px 0}
+table.facts th,table.facts td{border:1px solid var(--hair);padding:6px 12px;text-align:left;color:var(--dim)}
+table.facts th{color:var(--chalk);font-weight:500;background:var(--panel)}
+table.facts td b{color:var(--chalk);font-weight:500}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+@media(max-width:900px){.twocol{grid-template-columns:1fr}}
+
+/* explorer */
+#explorer{border-bottom:1px solid var(--hair);background:var(--well)}
+#explorer>.wrap{padding:32px 22px 40px;max-width:1400px}
+.lab{display:grid;grid-template-columns:290px minmax(0,1fr) 372px;gap:16px;margin-top:16px}
+@media(max-width:1180px){.lab{grid-template-columns:290px minmax(0,1fr)}.dossier{grid-column:1/-1}}
+@media(max-width:820px){.lab{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--hair);border-radius:8px}
+.pane>.ph{padding:9px 14px;border-bottom:1px solid var(--hair);display:flex;
+  justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pane>.ph .eyebrow{color:var(--steel)}
+.pane>.pb{padding:13px 14px}
+.ctl{display:flex;flex-direction:column;gap:17px}
+.ctl-group{display:flex;flex-direction:column;gap:8px}
+.slider-row{display:grid;grid-template-columns:30px 1fr 26px;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.8rem}
+.slider-row .nm{color:var(--dim);font-style:italic;font-family:var(--serif);font-size:1.02rem}
+.slider-row .val{color:var(--chalk);text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hair-2);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--hair-2);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--chalk);border:2px solid var(--steel);margin-top:-6px}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--chalk);border:2px solid var(--steel)}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--hair-2);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:var(--panel);flex:1 1 auto;padding:7px 5px;font-size:.7rem;color:var(--dim)}
+.seg button+button{border-left:1px solid var(--hair)}
+.seg button.on{background:var(--panel-2);color:var(--chalk);box-shadow:inset 0 -2px 0 var(--steel)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{width:25px;height:25px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;
+  box-shadow:0 0 0 1px var(--hair-2)}
+.chip.on{border-color:var(--chalk);box-shadow:0 0 0 2px var(--steel)}
+.checkline{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;color:var(--dim);cursor:pointer}
+.btnrow{display:flex;flex-wrap:wrap;gap:7px}
+.field-note{font-family:var(--mono);font-size:.66rem;color:var(--faint);line-height:1.5}
+
+/* stage */
+.stage-pane{display:flex;flex-direction:column;min-width:0}
+#stage{position:relative;background:radial-gradient(120% 100% at 50% 0%,#131a21,var(--well) 70%);
+  height:min(64vh,590px);min-height:380px;touch-action:none;cursor:grab}
+#stage.grabbing{cursor:grabbing}
+#stage canvas{display:block}
+#tip{position:absolute;pointer-events:none;background:rgba(10,14,18,.95);border:1px solid var(--hair-2);
+  border-radius:6px;padding:7px 10px;font-family:var(--mono);font-size:.7rem;line-height:1.55;
+  color:var(--dim);max-width:260px;z-index:5}
+#tip b{color:var(--chalk);font-weight:500}
+.stagefoot{border-top:1px solid var(--hair)}
+#verdict{font-family:var(--mono);font-size:.82rem}
+#verdict .ok{color:var(--good)} #verdict .no{color:var(--bad)}
+#verdict .sub{color:var(--faint);font-size:.7rem;margin-top:4px;line-height:1.6}
+#colourCounts{margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.68rem;color:var(--dim)}
+.swdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.axiscap{margin-top:8px;font-family:var(--mono);font-size:.64rem;color:var(--faint)}
+
+/* dossier */
+.dossier{display:flex;flex-direction:column;gap:14px;min-width:0}
+table.stats{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.72rem}
+table.stats th{color:var(--faint);font-weight:400;text-align:right;padding:3px 6px;border-bottom:1px solid var(--hair)}
+table.stats th:first-child{text-align:left}
+table.stats td{padding:5px 6px;text-align:right;color:var(--dim);border-bottom:1px solid var(--hair);cursor:pointer}
+table.stats td:first-child{text-align:left;color:var(--chalk)}
+table.stats tr.on td{background:var(--panel-2)}
+table.stats tr:hover td{background:var(--panel-2)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.dot.ok{background:var(--good)} .dot.no{background:var(--bad)}
+.lista{display:flex;flex-direction:column;max-height:190px;overflow:auto;font-family:var(--mono);font-size:.72rem}
+.lista .li{padding:5px 7px;border-bottom:1px solid var(--hair);color:var(--dim);cursor:pointer;display:flex;gap:8px;align-items:center}
+.lista .li:hover,.lista .li:focus{background:var(--panel-2);color:var(--chalk);outline:none}
+.lista .li .sw{width:9px;height:9px;border-radius:2px;flex:none}
+canvas.panel2d{width:100%;display:block;background:var(--well);border:1px solid var(--hair);border-radius:6px}
+.info-line{font-family:var(--mono);font-size:.68rem;color:var(--dim);margin-top:8px;min-height:1.2em;line-height:1.6}
+.info-line b{color:var(--chalk);font-weight:500}
+.info-line .ok{color:var(--good)} .info-line .no{color:var(--bad)}
+#lablog{display:flex;flex-direction:column-reverse;gap:6px;max-height:220px;overflow:auto;
+  font-family:var(--mono);font-size:.68rem;color:var(--dim);line-height:1.55}
+#lablog .ent{border-left:2px solid var(--hair-2);padding-left:9px}
+#lablog .ent b{color:var(--chalk);font-weight:500}
+#lablog .ent .tm{color:var(--faint)}
+
+/* dialog */
+dialog{background:var(--panel);color:var(--chalk);border:1px solid var(--hair-2);border-radius:8px;
+  padding:18px;max-width:560px;width:92vw}
+dialog::backdrop{background:rgba(5,8,11,.7)}
+dialog textarea{width:100%;min-height:150px;background:var(--well);color:var(--chalk);
+  border:1px solid var(--hair-2);border-radius:6px;font-family:var(--mono);font-size:.72rem;padding:9px}
+
+#comments-thread{min-height:150px}
+#comments-thread .utterances{max-width:100%;margin:0}
+footer{padding:36px 0 60px;color:var(--faint);font-size:.85rem}
+footer .wrap{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow">Ramsey theory · an instrument for [t]ⁿ</div>
+    <h1>The Hales–Jewett Explorer</h1>
+    <p class="sub">Grids, lines and colourings from <em>Improving Bounds on Hales–Jewett Numbers:
+      Symmetric Colorings, SAT Solvers, Line-Family Variants, and Forcing Structures</em> —
+      Y.&nbsp;Mouhib, ETH Zürich, 2026. Everything on this page is computed live from the
+      definitions in the thesis; the Python versions of every check live in
+      <a href="python/">python/</a>.</p>
+    <div class="ribbon">certificate · ω=(0,2,3,5) · χ = <b>10100111100100 0100111100 10</b> (mod 26)
+      · line-free on [4]¹³ · <b>HJ(4,2) ≥ 14</b> — Theorem 3.10</div>
+    <nav>
+      <a href="#explorer">explorer</a><a href="#lines">the four line families</a>
+      <a href="#symmetry">the simplex reduction</a><a href="#rado">Rado equations</a>
+      <a href="#graphs">forcing graphs (Ch. 7)</a><a href="#variants">bracket &amp; interval</a>
+      <a href="#census">census &amp; records</a><a href="#python">python</a><a href="#comments">comments</a>
+    </nav>
+  </div>
+</header>
+
+<div class="plate">
+  <div class="wrap">
+    <div class="thm">
+      <span class="name">Theorem (Hales–Jewett, 1963).</span>
+      For all <i>t</i>,&nbsp;<i>r</i> ≥ 1 there is an <i>n</i> such that every
+      <i>r</i>-colouring of the grid [<i>t</i>]<sup><i>n</i></sup> contains a monochromatic
+      combinatorial line. The least such <i>n</i> is the Hales–Jewett number
+      HJ(<i>t</i>,&nbsp;<i>r</i>).
+    </div>
+    <div class="vals">
+      <span>HJ(2, r) = <b>r</b> &nbsp;·&nbsp; HJ(3, 2) = <b>4</b> (Hindman–Tressler)</span>
+      <span>HJ(3, 3) ≥ <b>22</b> &nbsp;·&nbsp; HJ(4, 2) ≥ <b>14</b> &nbsp;(this thesis, Thms 3.7 / 3.10)</span>
+      <span>14 ≤ HJ(4) &lt; <b>10¹¹</b> (Lavrov) — for t ≥ 4 no exact value is known</span>
+    </div>
+  </div>
+</div>
+
+<section id="explorer">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">c : [t]ⁿ → [r]</span><h2>The explorer</h2></div>
+    <p class="smallnote">Drag to orbit, scroll or pinch to zoom. Click a point to paint it with the
+      selected colour (with <i>orbit paint</i> on, its whole S<sub>n</sub>-orbit is painted).
+      Hover points, lines, simplex cells and list entries — the three views are linked:
+      grid → type simplex → weight levels, the reduction chain of Chapters 2–3.</p>
+
+    <div class="lab">
+
+      <!-- ─── controls ─── -->
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Instrument</span></div>
+        <div class="pb ctl">
+
+          <div class="ctl-group">
+            <span class="eyebrow">Parameters</span>
+            <div class="slider-row"><span class="nm">t</span>
+              <input type="range" id="sl-t" min="2" max="4" step="1" value="3"
+                     aria-label="alphabet size t"><span class="val" id="v-t">3</span></div>
+            <div class="slider-row"><span class="nm">n</span>
+              <input type="range" id="sl-n" min="1" max="3" step="1" value="3"
+                     aria-label="dimension n"><span class="val" id="v-n">3</span></div>
+            <div class="slider-row"><span class="nm">r</span>
+              <input type="range" id="sl-r" min="1" max="6" step="1" value="2"
+                     aria-label="number of colours r"><span class="val" id="v-r">2</span></div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Colouring</span>
+            <div class="btnrow">
+              <button id="b-random">Random</button>
+              <button id="b-randsym">Random symmetric</button>
+              <button id="b-clear">Clear</button>
+            </div>
+            <label>preset certificates
+              <select id="sel-preset" aria-label="preset colourings"></select></label>
+            <button id="b-preset">Load preset</button>
+            <div class="field-note" id="preset-note"></div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">One-weight c<sub>ω,χ</sub> (Def. 2.6)</span>
+            <label>weight ω <input type="text" id="in-omega" value="0, 5, 7" spellcheck="false"></label>
+            <label>palette χ
+              <select id="sel-chi">
+                <option value="random">random on realised levels</option>
+                <option value="periodic" selected>periodic pattern (mod m)</option>
+                <option value="modr">x mod r</option>
+              </select></label>
+            <label id="lbl-pattern">pattern
+              <input type="text" id="in-pattern" value="1,0,0,1,0,1,0,0,1,2,2,2,2" spellcheck="false"></label>
+            <button id="b-ow">Apply one-weight colouring</button>
+            <div class="field-note">sum-type = ω (1, 2, …, t). Repeated values in ω are allowed
+              (degenerate weights, Rem. 7.23).</div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Lines</span>
+            <div class="seg" id="seg-family" role="group" aria-label="line family">
+              <button data-v="comb" class="on">comb</button><button data-v="unit">unit</button>
+              <button data-v="geom">geom</button><button data-v="cyc">cyclic</button>
+            </div>
+            <div class="seg" id="seg-restrict" role="group" aria-label="line restriction">
+              <button data-v="all" class="on">all lines</button>
+              <button data-v="K">L<sup>[K]</sup></button>
+              <button data-v="q">L<sup>(q)</sup></button>
+            </div>
+            <div class="slider-row" id="row-Kq" hidden><span class="nm" id="nm-Kq">K</span>
+              <input type="range" id="sl-Kq" min="1" max="3" step="1" value="1"
+                     aria-label="restriction parameter"><span class="val" id="v-Kq">1</span></div>
+            <div class="seg" id="seg-display" role="group" aria-label="which lines to draw">
+              <button data-v="mono">mono only</button><button data-v="all" class="on">draw all</button>
+              <button data-v="hover">at hover</button><button data-v="none">none</button>
+            </div>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Paint</span>
+            <div class="chips" id="chips"></div>
+            <label class="checkline"><input type="checkbox" id="ck-orbit">
+              orbit paint — recolour the whole type class</label>
+          </div>
+
+          <div class="ctl-group">
+            <span class="eyebrow">Tools</span>
+            <div class="btnrow">
+              <button id="b-find">Find line-free</button>
+              <button id="b-diag">Find diagonal-only</button>
+            </div>
+            <div class="btnrow">
+              <button id="b-countsym">Count symmetric line-free</button>
+              <button id="b-countall">Count all line-free</button>
+              <button id="b-minmono">Min # mono lines</button>
+            </div>
+            <div class="btnrow">
+              <button id="b-export">Export JSON</button>
+              <button id="b-import">Import…</button>
+            </div>
+            <div class="field-note">Exports match the input format of
+              <span class="mono">python/check_line_free.py</span>. Searches and counts run
+              exactly (backtracking) with a time budget.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ─── stage ─── -->
+      <div class="pane stage-pane">
+        <div class="ph"><span class="eyebrow">the grid <span class="mono" id="gridLabel"></span></span>
+          <span class="mono" id="lineTally" style="font-size:.68rem;color:var(--faint)"></span></div>
+        <div id="stage"><div id="tip" hidden></div></div>
+        <div class="pb stagefoot">
+          <div id="verdict"></div>
+          <div id="colourCounts"></div>
+          <div class="axiscap">axes: coordinate 1 →&nbsp; coordinate 2 ↑&nbsp; coordinate 3 ⊙ out of plane
+            &nbsp;·&nbsp; letters 1…t &nbsp;·&nbsp; in the cyclic families [t] ≅ ℤ<sub>t</sub> via t ↔ 0</div>
+        </div>
+      </div>
+
+      <!-- ─── dossier ─── -->
+      <div class="dossier">
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Families — live census</span>
+            <span class="mono" id="formulaOK" style="font-size:.66rem;color:var(--faint)"></span></div>
+          <div class="pb"><table class="stats" id="famTable"></table>
+            <div class="info-line">rows are clickable · counts verified against the closed forms of §6.1</div></div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Monochromatic lines</span><span class="mono" id="monoCount"></span></div>
+          <div class="pb"><div class="lista" id="monoList"></div>
+            <div class="info-line" id="rainbowNote"></div></div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Type simplex T<span class="mono" id="simplexLabel"></span></span></div>
+          <div class="pb">
+            <canvas id="simplex" class="panel2d" height="230"></canvas>
+            <div class="info-line" id="cellInfo">hover a cell — its S<sub>n</sub>-orbit lights up in the grid</div>
+            <div class="info-line" id="cornerInfo"></div>
+          </div>
+        </div>
+
+        <div class="pane" id="stripPane" hidden>
+          <div class="ph"><span class="eyebrow">Weight levels ⟨ω, type⟩</span><span class="mono" id="stripLabel"></span></div>
+          <div class="pb">
+            <canvas id="strip" class="panel2d" height="74"></canvas>
+            <div class="info-line" id="stripInfo">hover a combinatorial line — its homothet b + k·S<sub>ω</sub> appears here (Lemma 2.14)</div>
+          </div>
+        </div>
+
+        <div class="pane">
+          <div class="ph"><span class="eyebrow">Lab notebook</span></div>
+          <div class="pb"><div id="lablog" aria-live="polite"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<dialog id="dlg-import">
+  <h3 style="font-style:italic;margin-bottom:10px">Import a colouring</h3>
+  <p class="smallnote" style="margin:0 0 10px">Paste JSON as produced by <b>Export</b> or by
+    <span class="mono">python/check_line_free.py</span>:
+    <span class="mono">{"t":3,"n":3,"r":2,"colours":[…]}</span></p>
+  <textarea id="import-text" spellcheck="false"></textarea>
+  <div class="btnrow" style="margin-top:12px;justify-content:flex-end">
+    <button id="b-import-cancel">Cancel</button>
+    <button id="b-import-load">Load</button>
+  </div>
+</dialog>
+
+<section class="prose" id="lines">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">L(τ), L^cyc, L^unit, L^geom</span><h2>The four line families</h2></div>
+    <div class="twocol">
+      <div>
+        <p>A <b>combinatorial line</b> is generated by a root τ ∈ ([t] ∪ {∗})ⁿ with at least one ∗:
+          the line L<sub>τ</sub> = {τ(1), …, τ(t)} replaces every ∗ by the letter a. Over [4], the
+          root <code>2∗1∗</code> generates {2111, 2212, 2313, 2414}. Its <b>active set</b> I(τ) is
+          the set of starred coordinates; the all-active line is the <b>diagonal</b>.</p>
+        <p>Chapter 6 relaxes the rigid ascent. Identify [t] with ℤ<sub>t</sub> (letter t ↔ 0) and
+          take cosets L = a + ⟨v⟩ of order-t cyclic subgroups: <b>cyclic lines</b> use any valid
+          direction v ∈ (ℤ<sub>t</sub><sup>×</sup> ∪ {0})ⁿ \ {0}; <b>unit lines</b> restrict to
+          v ∈ {0,1}ⁿ; <b>geometric lines</b> to v ∈ {−1,0,1}ⁿ — the ±-roots where ∗ ascends and
+          ∗̄ descends, i.e. the tic-tac-toe lines. The containments (6.1) hold:
+          comb ⊆ unit, geom ⊆ cyclic, and for t ≥ 3 unit and geometric are incomparable.</p>
+      </div>
+      <div>
+        <table class="facts">
+          <tr><th>family</th><th>count in [t]ⁿ</th><th>drawn as</th></tr>
+          <tr><td>combinatorial</td><td>(t+1)ⁿ − tⁿ</td><td>ascending diagonals</td></tr>
+          <tr><td>geometric</td><td>((t+2)ⁿ − tⁿ)/2</td><td>± diagonals</td></tr>
+          <tr><td>unit-cyclic</td><td>(2ⁿ − 1)·tⁿ⁻¹</td><td>may wrap mod t</td></tr>
+          <tr><td>cyclic</td><td>((φ+1)ⁿ − 1)/φ · tⁿ⁻¹</td><td>cosets, φ = |ℤ<sub>t</sub><sup>×</sup>|</td></tr>
+        </table>
+        <p class="smallnote">The explorer enumerates each family from the definition and checks the
+          count against the formula on every parameter change. Already at (3, 2) the four numbers
+          separate completely: HJ<sub>cyc</sub>(3,2) = 2 &lt; HJ<sub>unit</sub> = HJ<sub>geom</sub>(3,2) = 3
+          &lt; HJ(3,2) = 4 — try t = 3, n = 2, family <i>cyclic</i>, then <b>Find line-free</b>:
+          the search proves none exists, and <b>Min # mono lines</b> returns 2 (Prop. 7.9).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="symmetry">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">type : [t]ⁿ → T⁽ᵗ⁾ₙ · ⟨ω, ·⟩</span><h2>The simplex reduction, one-weight colourings, and the records</h2></div>
+    <div class="twocol">
+      <div>
+        <p>A colouring invariant under all coordinate permutations factors through the
+          <b>type map</b> w ↦ (a₁, …, a<sub>t</sub>), the letter counts, onto the simplex
+          T⁽ᵗ⁾ₙ of size C(n+t−1, t−1) — polynomial against the tⁿ words (Lemma 2.4). On the
+          simplex, a line with k active coordinates and inactive type v becomes the
+          <b>corner tuple</b> C<sub>k,v</sub> = {v + k·e₁, …, v + k·e<sub>t</sub>}, and
+          <b>Lemma 3.1</b> says: the symmetric colouring is line-free iff no corner tuple is
+          monochromatic. The simplex panel above performs exactly this check and stays in sync
+          with the grid.</p>
+        <p>A <b>one-weight colouring</b> reads a single integer weight,
+          c<sub>ω,χ</sub>(w) = χ(⟨ω, type(w)⟩); sum-type is ω = (1, …, t), where the level is
+          σ(w). Under it a line carries the <b>homothet</b> b + k·S<sub>ω</sub> of the weight
+          set (Lemma 2.14) — the level strip shows this. By the radix argument
+          (<b>Theorem 3.5</b>) one-weight colourings realise the <i>entire</i> symmetric class
+          in every fixed dimension: the hierarchy sum ⊆ ow ⊆ sym is flat above ow.</p>
+      </div>
+      <div>
+        <p>The quantitative payoff of the thesis: single explicit weights give the records
+          <b>HJ(3,3) ≥ 22</b> via ω = (0, 1, 29) and <b>HJ(4,2) ≥ 14</b> via ω = (0, 2, 3, 5)
+          with a 26-periodic palette. Load the presets <i>Record palette mod 26</i> (t = 4) and
+          <i>ω=(0,5,7), ψ mod 13</i> (t = 3): both are line-free on every grid this page can
+          show, and the second avoids monochromatic lines with ≤ 12 active coordinates in
+          <i>every</i> dimension (Thm 4.10).</p>
+        <table class="facts">
+          <tr><th>certificate ladder at (3,3)</th><th>reach</th></tr>
+          <tr><td>arithmetic closed form (van der Waerden)</td><td>13</td></tr>
+          <tr><td>triples {0,1,3}, {0,1,4}</td><td>14</td></tr>
+          <tr><td>49-cell periodic palette</td><td>15</td></tr>
+          <tr><td>length-76 interval certificate, G₃({0,2,5}) ≥ 77</td><td>16</td></tr>
+          <tr><td><b>253-cell radix table (Table A.1)</b></td><td><b>22</b></td></tr>
+        </table>
+        <p class="smallnote">The preset <i>Record slice (Table A.1)</i> restricts that 253-cell
+          witness to [3]³ by the monotonicity shift of Lemma 3.3.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="prose" id="rado">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">E<sub>s</sub> · b + k·S</span><h2>Homothets and the Rado reading (§2.4)</h2></div>
+    <div class="pane" style="margin:8px 0 22px">
+      <div class="ph"><span class="eyebrow">Live — derived from the explorer's weight</span></div>
+      <div class="pb">
+        <div class="info-line" id="radoS"></div>
+        <div class="info-line" id="radoEq" style="margin-top:10px"></div>
+        <canvas id="radoStrip" class="panel2d" height="74" style="margin-top:12px"></canvas>
+        <div class="info-line" id="radoCounts" style="margin-top:8px"></div>
+        <div class="info-line" id="radoBound" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="twocol">
+      <div>
+        <p>Under a one-weight colouring, a line with k active coordinates and inactive type v
+          carries the <b>homothet</b> ⟨ω,v⟩ + k·S<sub>ω</sub> of the weight set
+          (Lemma 2.14) — line-freeness on the grid is homothety-avoidance on ℤ.
+          <b>Proposition 2.19</b> gives the algebraic form: for S = {s₁ &lt; … &lt; s<sub>t</sub>}
+          there is a homogeneous system E<sub>s</sub> of t − 2 equations, each with
+          coefficient sum zero — hence partition regular by Rado's criterion — whose integer
+          solutions are exactly a·<b>1</b> + d·<b>s</b>. The injective ones (d ≠ 0) are, as
+          sets, the homothets of S for d ≥ 1 and of the reflected −S for d ≤ −1.</p>
+        <p><b>Example 2.20.</b> For S = {0,1,3} the system is the single equation
+          <code>z + 2x = 3y</code>, whose injective solutions are the triples
+          {a, a+d, a+3d}. Since the grid realises only positive scales, the search for a
+          line-free one-weight colouring at ω = (0,1,3) is homothety-avoidance for
+          {0,1,3} <i>alone</i>, whereas the Rado number of the equation demands avoiding the
+          reflected pattern {0,2,3} as well. The live panel above counts both on the current
+          palette — the two can genuinely differ.</p>
+      </div>
+      <div>
+        <p><b>Remark 2.24 (a correction).</b> An explicit 4-colouring of 56 consecutive
+          integers is free of monochromatic injective solutions of <code>z + 2x = 3y</code> —
+          both patterns at once — giving <b>R₄(z + 2x = 3y) ≥ 57</b> and refuting the
+          reported values R₄ = 44 and N<sub>max</sub>(3,4) = 43 of Dumitru–Prunescu. The
+          window certificate for {0,1,3}-avoidance alone reaches length 93
+          (G₄({0,1,3}) ≥ 94), yet its grid bound of 31 is weaker than the van der Waerden
+          shadow HJ(3,4) ≥ 38 — the two thresholds are distinct.</p>
+        <p>Through <b>Theorem 2.15</b> every pattern carries a lower bound,
+          HJ(t, r) ≥ ⌈(G<sub>r</sub>(S) − 1)/D<sub>S</sub>⌉, with van der Waerden as the
+          arithmetic case; the panel matches your current S₀ against the Gallai numbers
+          computed in the thesis (Table 2.1): G₃({0,1,3}) = 42, G₃({0,1,4}) = 57,
+          G₃({0,2,5}) ≥ 77, G₂({0,2,3,5}) = 67, G₂({0,1,5,6}) = 80.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="graphs">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">G([t]ⁿ) · Q([t]ⁿ) · C⁽ᵗ⁾ₙ</span><h2>Forcing structures: the graphs of Chapter 7</h2></div>
+    <p>An upper bound HJ(t,r) ≤ n is a statement about <i>structures</i>: which subfamilies of
+      lines force a monochromatic line under every colouring. Both panels below are computed
+      live from the colouring in the explorer — recolour above and watch them change.</p>
+    <div class="twocol" style="align-items:start">
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Intersection graph G([t]ⁿ) — §7.1–7.2</span></div>
+        <div class="pb">
+          <canvas id="igraph" class="panel2d" height="340"></canvas>
+          <div class="info-line" id="igraphInfo"></div>
+        </div>
+      </div>
+      <div class="pane">
+        <div class="ph"><span class="eyebrow">Corner hypergraph C⁽ᵗ⁾ₙ — §7.3</span>
+          <button id="b-k4">show the clean K (Prop. 7.26)</button></div>
+        <div class="pb">
+          <canvas id="chyper" class="panel2d" height="340"></canvas>
+          <div class="info-line" id="chyperInfo"></div>
+          <div class="info-line" id="chyperStats" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="twocol" style="margin-top:24px">
+      <div>
+        <p>For t = 2 the responsible structure is a <b>clique</b>: G₂(n) is the comparability
+          graph of the Boolean lattice, its cliques are the chains, and Mirsky's theorem gives
+          χ = n+1, whence HJ(2,r) = r (Prop. 7.1) — set t = 2 above to see the pigeonhole
+          chain. For t ≥ 3 vertices are the lines and each edge carries its unique
+          intersection word (linearity, Lemma 7.3); a colouring of the grid induces the edge
+          colouring c̃(e) = c(x<sub>e</sub>), and a line is monochromatic iff its
+          <b>star</b> is (Lemma 7.5) — hover a vertex to watch the dictionary verify itself.
+          Hovering an edge shows its <b>coherence class</b>: edges sharing a word must share a
+          colour, and Prop. 7.6 shows this constraint is the entire content — random
+          non-coherent edge colourings avoid monochromatic stars in abundance. No pigeonhole
+          certificate survives at t ≥ 3: the line hypergraph has no K⁽ᵗ⁾<sub>t+1</sub>
+          (Prop. 7.7) and, over 𝔽₃, no Fano plane (Prop. 7.8) — forcing families are large
+          asymmetric cores (67 lines on 52 words already at [3]⁴, Prop. 7.10).</p>
+      </div>
+      <div>
+        <p>Quotienting by the coordinate action turns the symmetric problem into the
+          <b>corner hypergraph</b> C⁽ᵗ⁾ₙ: cells of the simplex as vertices, corner tuples as
+          edges — a linear t-uniform hypergraph in which every cell lies in exactly n edges
+          and each <b>pencil</b> is a complete Kₙ (Lemma 7.19); for t = 3 it is exactly the
+          corners configuration of Ajtai–Szemerédi. Its weak chromatic threshold <i>is</i> the
+          symmetric Hales–Jewett number (Thm 7.21 ii). The toggle exhibits Prop. 7.26: a
+          loopless, cell-rainbow K<sub>t+1</sub> persisting in every dimension — while
+          globally, any clean graph model is degree-starved above n = 2 (Prop. 7.27).</p>
+        <p>The reformulation pays asymptotically: the Lovász Local Lemma on C⁽ᵗ⁾ₙ gives
+          HJ<sub>sym</sub>(t, r) ≥ 2 + ⌊(r<sup>t−1</sup>/e − 1)/t⌋ = Ω(r<sup>t−1</sup>/t)
+          in two lines (Thm 7.28) — <span class="mono" id="lllVal"></span> — and the
+          quasipolynomial corners theorem transfers to
+          e<sup>c·log²r</sup> ≤ HJ<sub>sym</sub>(3, r) ≤ e<sup>(log r)^C</sup> (Thm 7.31),
+          making the extremality conjecture falsifiable on the asymptotic axis
+          (Cor. 7.32).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="variants">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">L^[K] · L^(q) · κ, λ</span><h2>Bracket and interval restrictions</h2></div>
+    <div class="twocol">
+      <div>
+        <p><b>L<sup>[K]</sup></b> keeps the lines with at most K active coordinates,
+          <b>L<sup>(q)</sup></b> those whose active set is a union of ≤ q subintervals of [n]
+          (for the coset families, "active set" = support of the direction). The parity colouring
+          σ mod 2 kills every line of L<sup>[1]</sup> in any dimension (Prop. 4.1) — load the
+          <i>Parity</i> preset and set the restriction to K = 1. The bracket ceilings are known
+          exactly at small parameters: κ<sub>sum</sub>(3,3) = 11, κ<sub>sum</sub>(4,2) = 10,
+          κ<sub>sum</sub>(4,3) = 96, and non-arithmetic periodic weights pass the van der
+          Waerden ceiling: HJ<sup>[12]</sup>(3,3) = HJ<sup>[12]</sup>(4,2) = ∞ (Thms 4.10, 4.11 —
+          both loadable above).</p>
+      </div>
+      <div>
+        <p>The interval axis is transverse: symmetric colourings are provably blind to it,
+          HJ<sup>(q)</sup><sub>sym</sub> = HJ<sub>sym</sub> for every q (Prop. 4.15) — the
+          <b>Count symmetric line-free</b> tool therefore ignores an interval restriction and
+          says why. The ceiling λ(3, r) equals r − 1 for odd and r − 2 for even r
+          (Prop. 4.19), and the first nontrivial exact interval value is
+          <b>HJ<sup>(1)</sup>(3) = 5</b> against HJ(3) = 4 (Thm 4.20).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="census">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">#</span><h2>Census &amp; records — and how this page re-proves them</h2></div>
+    <div class="twocol">
+      <div>
+        <table class="facts">
+          <tr><th colspan="2">line-free 2-colourings of [3]³ (Table A.5)</th></tr>
+          <tr><td>total</td><td><b>1644</b> (822 complementary pairs)</td></tr>
+          <tr><td>symmetric (= one-weight), stabiliser S₃</td><td><b>36</b></td></tr>
+          <tr><td>· of which sum-type</td><td><b>16</b></td></tr>
+          <tr><td>· non-arithmetic one-weight</td><td><b>20</b></td></tr>
+          <tr><td>block-symmetric, stabiliser C₂</td><td><b>504</b></td></tr>
+          <tr><td>cyclic, stabiliser C₃</td><td><b>24</b></td></tr>
+          <tr><td>asymmetric</td><td><b>1080</b></td></tr>
+          <tr><td>diagonal-only colourings (Table A.6)</td><td><b>6456</b></td></tr>
+        </table>
+        <p class="smallnote">At t = 3, n = 3, r = 2: <b>Count all line-free</b> returns 1644 and
+          <b>Count symmetric line-free</b> returns 36, exactly — both by backtracking from the
+          definitions, no solver. The verdict banner names the stabiliser class of whatever
+          colouring is on screen, in the vocabulary of the census. <b>Find diagonal-only</b>
+          produces a witness whose unique monochromatic line is the diagonal
+          (Conjecture 4.23's objects).</p>
+      </div>
+      <div>
+        <table class="facts">
+          <tr><th>(t, r)</th><th>HJ</th><th>HJ<sub>geom</sub></th><th>HJ<sub>unit</sub></th><th>HJ<sub>cyc</sub></th></tr>
+          <tr><td>(2, r)</td><td>r</td><td colspan="3">⌈log₂(r+1)⌉ (all three coincide)</td></tr>
+          <tr><td>(3, 2)</td><td><b>4</b></td><td><b>3</b></td><td><b>3</b></td><td><b>2</b></td></tr>
+          <tr><td>(4, 2)</td><td>≥ 14</td><td>—</td><td>≥ 5</td><td>—</td></tr>
+        </table>
+        <p class="smallnote">Table 6.1: the cyclic numbers are logarithmic in r while the
+          classical ones grow at least linearly — a cyclic lower-bound colouring can never
+          transfer. Try t = 2: any two distinct points of ℤ₂ⁿ form a unit line, so line-free =
+          injective and the threshold is ⌈log₂(r+1)⌉ (Prop. 6.1). The rainbow counter in the
+          dossier is the anti-Ramsey side: ah(3, 4) ≥ 25 (Prop. 5.9).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="python">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">&gt;&gt;&gt;</span><h2>Check colourings in Python</h2></div>
+    <p><span class="mono">python/hj.py</span> mirrors everything on this page — words, the four
+      families, restrictions, colouring classes, the simplex reduction, and exact backtracking
+      counters. Three ready-made programs:</p>
+    <pre><code># is a colouring line-free?  (reads the JSON exported by this page)
+python3 python/check_line_free.py my_colouring.json
+python3 python/check_line_free.py --demo          # run the thesis certificates
+
+# reproduce the [3]^3 census of Appendix A.4:  1644 / 36 / 16 / 504 / 24 / 1080 / 6456
+python3 python/census_333.py
+
+# verify every certificate embedded in this page, and the family count formulas
+python3 python/examples.py</code></pre>
+    <p class="smallnote">A quick line-free check in three lines:</p>
+    <pre><code>import hj
+col = hj.sum_type_colouring(3, 3, lambda s: (s % 4) // 2)   # Prop. 3.14
+print(hj.is_line_free(col, 3, 3))                            # True → HJ(3,2) = 4</code></pre>
+  </div>
+</section>
+
+
+<section class="prose" id="comments">
+  <div class="wrap">
+    <div class="sechead"><span class="tag">✎</span><h2>Comments</h2></div>
+    <p class="smallnote">Comments are GitHub issues on this repository, rendered by
+      <a href="https://utteranc.es">utterances</a>; posting needs a GitHub login. If the box
+      below is empty, the one-time activation (installing the utterances app on the repo) is
+      step 8 of the README — nothing else to configure.</p>
+    <div id="comments-thread">
+      <script src="https://utteranc.es/client.js"
+              repo="ysmouhib/hales-jewett-explorer"
+              issue-term="pathname"
+              theme="github-dark"
+              crossorigin="anonymous"
+              async>
+      </script>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Built as a companion to the thesis; records also appear in the note
+      <a href="https://arxiv.org/abs/2606.22155">arXiv:2606.22155</a> (Mouhib–Halbeisen).
+      Certificates and SAT logs: <a href="https://github.com/ysmouhib/hj-certificates">ysmouhib/hj-certificates</a>.</div>
+    <div>Source of this page: <a href="https://github.com/ysmouhib/hales-jewett-explorer">ysmouhib/hales-jewett-explorer</a>
+      — deployment steps in the README. Colour palette: Okabe–Ito (colour-blind safe).</div>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   HJ core — the mathematics of the Hales–Jewett explorer
+   ---------------------------------------------------------------------
+   Mirrors python/hj.py; implements, from the thesis's definitions:
+   words & the type map (Lemma 2.4), weight functionals (§2.2),
+   the four line families of Chapter 6, the bracket L^[K] and interval
+   L^(q) restrictions (Chapter 4), colouring classes sum ⊆ ow ⊆ sym ⊆ all
+   (Def. 2.6/2.8), the simplex reduction via corner tuples (Lemma 3.1),
+   and exact backtracking counters (Appendix A.4 census).
+   Colours are 0..r−1; a colouring is an array of length t^n.
+   ===================================================================== */
+'use strict';
+const HJ = (() => {
+
+  // ---------- words and the type map --------------------------------
+  function words(t, n) {
+    const out = [], w = new Array(n).fill(1);
+    const total = Math.pow(t, n);
+    for (let ix = 0; ix < total; ix++) {
+      out.push(w.slice());
+      for (let i = 0; i < n; i++) {
+        if (w[i] < t) { w[i]++; break; }
+        w[i] = 1;
+      }
+    }
+    return out;              // index order: coordinate 0 least significant
+  }
+  function wordIndex(w, t) {
+    let ix = 0, p = 1;
+    for (let i = 0; i < w.length; i++) { ix += (w[i] - 1) * p; p *= t; }
+    return ix;
+  }
+  function typeOf(w, t) {
+    const tp = new Array(t).fill(0);
+    for (const a of w) tp[a - 1]++;
+    return tp;
+  }
+  const sigma = w => w.reduce((s, a) => s + a, 0);
+  function simplex(t, n) {           // T^(t)_n
+    const cells = [];
+    (function rec(prefix, rem, slots) {
+      if (slots === 1) { cells.push(prefix.concat([rem])); return; }
+      for (let v = 0; v <= rem; v++) rec(prefix.concat([v]), rem - v, slots - 1);
+    })([], n, t);
+    return cells;
+  }
+  const weightF = (omega, tp) => tp.reduce((s, a, j) => s + omega[j] * a, 0);
+  const cellKey = c => c.join(',');
+  const binom = (n, k) => { let r = 1; for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1); return Math.round(r); };
+
+  // ---------- lines ---------------------------------------------------
+  function nIntervals(active) {
+    let runs = 0, prev = null;
+    for (const i of active) { if (prev === null || i !== prev + 1) runs++; prev = i; }
+    return runs;
+  }
+  function mkLine(points, active, family, label, invariant) {
+    return { points, active, family, label, invariant: invariant || null,
+             key: points.slice().sort((a, b) => a - b).join('-'),
+             nIntervals: nIntervals(active) };
+  }
+
+  function combinatorialLines(t, n) {         // roots over [t] ∪ {∗}
+    const lines = [], syms = t + 1;           // symbol t (0-based) = ∗
+    const total = Math.pow(syms, n), root = new Array(n);
+    for (let code = 0; code < total; code++) {
+      let c = code, star = false;
+      for (let i = 0; i < n; i++) { root[i] = c % syms; c = (c / syms) | 0; if (root[i] === t) star = true; }
+      if (!star) continue;
+      const active = [];
+      for (let i = 0; i < n; i++) if (root[i] === t) active.push(i);
+      const pts = [];
+      for (let a = 1; a <= t; a++) {
+        const w = root.map(s => s === t ? a : s + 1);
+        pts.push(wordIndex(w, t));
+      }
+      const v = new Array(t).fill(0);
+      for (const s of root) if (s !== t) v[s]++;
+      const label = root.map(s => s === t ? '∗' : String(s + 1)).join('');
+      lines.push(mkLine(pts, active, 'comb', label, { k: active.length, v }));
+    }
+    return lines;
+  }
+
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  const units = t => { const u = []; for (let x = 1; x < t; x++) if (gcd(x, t) === 1) u.push(x); return u; };
+  const toLetter = (res, t) => { const r = ((res % t) + t) % t; return r === 0 ? t : r; };
+
+  function cosetLines(t, n, dirs, family) {
+    const seen = new Map();
+    const bases = words(t, n).map(w => w.map(a => a % t)); // residues
+    for (const v of dirs) {
+      for (const a of bases) {
+        const pts = [];
+        for (let k = 0; k < t; k++) {
+          const w = new Array(n);
+          for (let i = 0; i < n; i++) w[i] = toLetter(a[i] + k * v[i], t);
+          pts.push(wordIndex(w, t));
+        }
+        const key = pts.slice().sort((x, y) => x - y).join('-');
+        if (seen.has(key)) continue;
+        const active = [];
+        for (let i = 0; i < n; i++) if (v[i] % t !== 0) active.push(i);
+        const base = a.map(x => toLetter(x, t)).join('');
+        seen.set(key, mkLine(pts, active, family,
+          'a=' + base + ', v=(' + v.join(',') + ')'));
+      }
+    }
+    return Array.from(seen.values());
+  }
+  function vectorsOver(alphabet, n) {         // all non-zero vectors
+    const out = [], total = Math.pow(alphabet.length, n), v = new Array(n);
+    for (let code = 0; code < total; code++) {
+      let c = code, nz = false;
+      for (let i = 0; i < n; i++) { v[i] = alphabet[c % alphabet.length]; c = (c / alphabet.length) | 0; if (v[i] !== 0) nz = true; }
+      if (nz) out.push(v.slice());
+    }
+    return out;
+  }
+  const unitLines   = (t, n) => cosetLines(t, n, vectorsOver([0, 1], n), 'unit');
+  const cyclicLines = (t, n) => cosetLines(t, n, vectorsOver([0].concat(units(t)), n), 'cyc');
+
+  function geometricLines(t, n) {             // ± roots: ∗ ascends, ∗̄ descends
+    const seen = new Map(), syms = t + 2;     // t → '+', t+1 → '−'
+    const total = Math.pow(syms, n), root = new Array(n);
+    for (let code = 0; code < total; code++) {
+      let c = code, star = false;
+      for (let i = 0; i < n; i++) { root[i] = c % syms; c = (c / syms) | 0; if (root[i] >= t) star = true; }
+      if (!star) continue;
+      const pts = [];
+      for (let k = 1; k <= t; k++) {
+        const w = root.map(s => s === t ? k : s === t + 1 ? t + 1 - k : s + 1);
+        pts.push(wordIndex(w, t));
+      }
+      const key = pts.slice().sort((x, y) => x - y).join('-');
+      if (seen.has(key)) continue;
+      const active = [];
+      for (let i = 0; i < n; i++) if (root[i] >= t) active.push(i);
+      const label = root.map(s => s === t ? '∗' : s === t + 1 ? '∗\u0304' : String(s + 1)).join('');
+      seen.set(key, mkLine(pts, active, 'geom', label));
+    }
+    return Array.from(seen.values());
+  }
+
+  const FAMILIES = { comb: combinatorialLines, unit: unitLines,
+                     geom: geometricLines, cyc: cyclicLines };
+
+  function lines(t, n, family, K, q) {
+    let ls = FAMILIES[family](t, n);
+    if (K != null) ls = ls.filter(l => l.active.length <= K);
+    if (q != null) ls = ls.filter(l => l.nIntervals <= q);
+    return ls;
+  }
+  function lineCountFormula(t, n, family) {
+    const phi = units(t).length;
+    if (family === 'comb') return Math.pow(t + 1, n) - Math.pow(t, n);
+    if (family === 'unit') return (Math.pow(2, n) - 1) * Math.pow(t, n - 1);
+    if (family === 'geom') return (Math.pow(t + 2, n) - Math.pow(t, n)) / 2;
+    if (family === 'cyc')  return (Math.pow(phi + 1, n) - 1) / phi * Math.pow(t, n - 1);
+  }
+
+  // ---------- colourings ---------------------------------------------
+  const randomColouring = (t, n, r, rnd) =>
+    Array.from({ length: Math.pow(t, n) }, () => Math.floor((rnd || Math.random)() * r));
+  function liftDescent(descent, t, n) {       // descent: Map cellKey → colour
+    return words(t, n).map(w => descent.get(cellKey(typeOf(w, t))));
+  }
+  function randomSymmetric(t, n, r, rnd) {
+    const d = new Map();
+    for (const cell of simplex(t, n)) d.set(cellKey(cell), Math.floor((rnd || Math.random)() * r));
+    return liftDescent(d, t, n);
+  }
+  const oneWeight = (t, n, omega, chi) =>
+    words(t, n).map(w => chi(weightF(omega, typeOf(w, t))));
+  const sumType = (t, n, chi) =>
+    oneWeight(t, n, Array.from({ length: t }, (_, i) => i + 1), chi);
+  const periodic = pattern => x => pattern[((x % pattern.length) + pattern.length) % pattern.length];
+
+  function descentOf(col, t, n) {             // Map or null (Lemma 2.4)
+    const d = new Map();
+    const W = words(t, n);
+    for (const w of W) {
+      const k = cellKey(typeOf(w, t)), c = col[wordIndex(w, t)];
+      if (d.has(k)) { if (d.get(k) !== c) return null; } else d.set(k, c);
+    }
+    return d;
+  }
+  const isSymmetric = (col, t, n) => descentOf(col, t, n) !== null;
+
+  function permutations(n) {
+    if (n === 1) return [[0]];
+    const smaller = permutations(n - 1), out = [];
+    for (const p of smaller) for (let i = 0; i <= p.length; i++)
+      out.push(p.slice(0, i).concat([n - 1], p.slice(i)));
+    return out;
+  }
+  function stabilizerClass(col, t, n) {       // Table A.5 vocabulary
+    const W = words(t, n);
+    let m = 0;
+    for (const perm of permutations(n)) {
+      let fix = true;
+      for (const w of W) {
+        const pw = perm.map(i => w[i]);
+        if (col[wordIndex(pw, t)] !== col[wordIndex(w, t)]) { fix = false; break; }
+      }
+      if (fix) m++;
+    }
+    if (n === 3) return { 6: 'S₃ — symmetric', 3: 'C₃ — cyclic',
+                          2: 'C₂ — block-symmetric', 1: '1 — asymmetric' }[m];
+    if (n === 2) return m === 2 ? 'S₂ — symmetric' : '1 — asymmetric';
+    return 'S₁ — symmetric';
+  }
+
+  // ---------- checking -------------------------------------------------
+  function monoLines(col, ls) {
+    return ls.filter(l => l.points.every(p => col[p] === col[l.points[0]]));
+  }
+  function rainbowLines(col, ls) {
+    return ls.filter(l => new Set(l.points.map(p => col[p])).size === l.points.length);
+  }
+
+  // ---------- simplex reduction ---------------------------------------
+  function cornerTuples(t, n, K) {
+    K = K == null ? n : Math.min(K, n);
+    const out = [];
+    for (let k = 1; k <= K; k++)
+      for (const v of simplex(t, n - k)) {
+        const cells = [];
+        for (let a = 0; a < t; a++) { const c = v.slice(); c[a] += k; cells.push(c); }
+        out.push({ k, v, cells });
+      }
+    return out;
+  }
+  function monoCorners(descent, t, n, K) {
+    return cornerTuples(t, n, K).filter(ct => {
+      const c0 = descent.get(cellKey(ct.cells[0]));
+      return ct.cells.every(c => descent.get(cellKey(c)) === c0);
+    });
+  }
+
+  // ---------- exact backtracking counters ------------------------------
+  // Generic not-all-equal counting over `groups` of variables 0..N−1.
+  // opts: { r, deadline (ms epoch), maxSolutions, forcedEqual: Set of vars
+  //         allowed to be monochromatic (their group is forced equal),
+  //         onSolution(colour) }
+  function countNAE(N, groups, opts) {
+    const r = opts.r;
+    const at = Array.from({ length: N }, () => []);
+    groups.forEach((g, gi) => g.forEach(p => at[p].push(gi)));
+    const colour = new Array(N).fill(-1);
+    const remaining = groups.map(g => g.length);
+    const seenCount = groups.map(() => new Array(r).fill(0));
+    const seenDistinct = groups.map(() => 0);
+    const forced = opts.forcedEqual || null;
+    const forcedKey = forced ? Array.from(forced).sort((a, b) => a - b).join('-') : null;
+    const isForcedGroup = groups.map(g =>
+      forcedKey !== null && g.slice().sort((a, b) => a - b).join('-') === forcedKey);
+    const order = Array.from({ length: N }, (_, i) => i)
+      .sort((a, b) => at[b].length - at[a].length);
+    let count = 0, nodes = 0, exhausted = true;
+    const deadline = opts.deadline || Infinity;
+    const maxSol = opts.maxSolutions || Infinity;
+
+    function rec(i) {
+      if (!exhausted || count >= maxSol) { exhausted = exhausted && count < maxSol ? exhausted : false; return; }
+      if (i === N) { count++; if (opts.onSolution) opts.onSolution(colour.slice()); return; }
+      const p = order[i];
+      if ((++nodes & 1023) === 0 && Date.now() > deadline) { exhausted = false; return; }
+      let choices = null;
+      if (forced && forced.has(p)) {
+        for (const x of forced) if (colour[x] >= 0) { choices = [colour[x]]; break; }
+      }
+      for (let c = 0; c < r; c++) {
+        if (choices && choices[0] !== c) continue;
+        let bad = false;
+        for (const gi of at[p]) {
+          if (isForcedGroup[gi]) continue;               // must be mono
+          if (remaining[gi] === 1 && seenDistinct[gi] === 1 && seenCount[gi][c] > 0) { bad = true; break; }
+        }
+        if (bad) continue;
+        colour[p] = c;
+        for (const gi of at[p]) { remaining[gi]--; if (seenCount[gi][c]++ === 0) seenDistinct[gi]++; }
+        rec(i + 1);
+        colour[p] = -1;
+        for (const gi of at[p]) { remaining[gi]++; if (--seenCount[gi][c] === 0) seenDistinct[gi]--; }
+        if (!exhausted || count >= maxSol) return;
+      }
+    }
+    rec(0);
+    return { count, exhausted: exhausted && count < maxSol, nodes,
+             capped: count >= maxSol };
+  }
+
+  function countLineFree(t, n, r, family, K, q, budgetMs, maxSolutions, onSolution, forcedEqual) {
+    const ls = lines(t, n, family || 'comb', K, q).map(l => l.points);
+    return countNAE(Math.pow(t, n), ls,
+      { r, deadline: budgetMs ? Date.now() + budgetMs : Infinity,
+        maxSolutions, onSolution, forcedEqual });
+  }
+  function countLineFreeSymmetric(t, n, r, K, budgetMs) {
+    const cells = simplex(t, n), idx = new Map();
+    cells.forEach((c, i) => idx.set(cellKey(c), i));
+    const groups = cornerTuples(t, n, K).map(ct => ct.cells.map(c => idx.get(cellKey(c))));
+    return countNAE(cells.length, groups,
+      { r, deadline: budgetMs ? Date.now() + budgetMs : Infinity });
+  }
+  function findLineFree(t, n, r, family, K, q, budgetMs) {
+    let sol = null;
+    const res = countLineFree(t, n, r, family, K, q, budgetMs, 1, c => { sol = c; });
+    return { colouring: sol, searched: res.exhausted || sol !== null };
+  }
+  function findDiagonalOnly(t, n, r, budgetMs) {
+    const diag = new Set();
+    for (let a = 1; a <= t; a++) diag.add(wordIndex(new Array(n).fill(a), t));
+    let sol = null;
+    const res = countLineFree(t, n, r, 'comb', null, null, budgetMs, 1,
+      c => { sol = c; }, diag);
+    return { colouring: sol, searched: res.exhausted || sol !== null };
+  }
+
+  // min number of monochromatic lines over all colourings (brute force,
+  // only for tiny r^{t^n}) — Prop 7.9 style
+  function minMonochromatic(t, n, r, family, K, q, cap) {
+    const N = Math.pow(t, n), total = Math.pow(r, N);
+    if (total > (cap || 3e6)) return null;
+    const ls = lines(t, n, family, K, q);
+    let best = Infinity;
+    const col = new Array(N).fill(0);
+    for (let m = 0; m < total; m++) {
+      let x = m;
+      for (let i = 0; i < N; i++) { col[i] = x % r; x = (x / r) | 0; }
+      let k = 0;
+      for (const l of ls) {
+        const c0 = col[l.points[0]];
+        let mono = true;
+        for (const p of l.points) if (col[p] !== c0) { mono = false; break; }
+        if (mono && ++k >= best) break;
+      }
+      if (k < best) { best = k; if (best === 0) break; }
+    }
+    return best;
+  }
+
+  // realized levels of a weight on T^(t)_n  (the level strip, Lemma 2.14)
+  function realizedLevels(t, n, omega) {
+    const s = new Set();
+    for (const cell of simplex(t, n)) s.add(weightF(omega, cell));
+    return Array.from(s).sort((a, b) => a - b);
+  }
+
+  return { words, wordIndex, typeOf, sigma, simplex, weightF, cellKey, binom,
+           combinatorialLines, unitLines, geometricLines, cyclicLines,
+           lines, lineCountFormula, units,
+           randomColouring, liftDescent, randomSymmetric, oneWeight, sumType,
+           periodic, descentOf, isSymmetric, stabilizerClass,
+           monoLines, rainbowLines,
+           cornerTuples, monoCorners,
+           countLineFree, countLineFreeSymmetric, findLineFree,
+           findDiagonalOnly, minMonochromatic, realizedLevels };
+})();
+if (typeof module !== 'undefined') module.exports = HJ;
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =====================================================================
+   Hales–Jewett Explorer — application layer
+   (math lives in HJ, spliced above; rendering with three.js r128)
+   ===================================================================== */
+'use strict';
+(function () {
+
+const PALETTE = ['#e69f00', '#56b4e9', '#009e73', '#f0e442', '#cc79a7', '#d55e00'];
+const FAMNAME = { comb: 'combinatorial', unit: 'unit-cyclic', geom: 'geometric', cyc: 'cyclic' };
+const SUP = n => ({1: '¹', 2: '²', 3: '³'})[n] || ('^' + n);
+const $ = id => document.getElementById(id);
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------------------------------------------------------------- state
+const S = {
+  t: 3, n: 3, r: 2,
+  family: 'comb',
+  restrict: 'all', K: 1, q: 1,
+  display: 'all',                 // mono | all | hover | none
+  paint: 0, orbitPaint: false,
+  col: [],                        // colouring, length t^n
+  info: { kind: 'random', desc: 'random', omega: null, chi: null },
+  regen: null,                    // (t,n,r) => {col, info} | null
+};
+const lineCache = new Map();
+function familyLines(fam) {
+  const key = S.t + '|' + S.n + '|' + fam;
+  if (!lineCache.has(key)) lineCache.set(key, HJ.lines(S.t, S.n, fam));
+  return lineCache.get(key);
+}
+function restrictOf() {
+  return S.restrict === 'K' ? { mode: 'K', K: S.K }
+       : S.restrict === 'q' ? { mode: 'q', q: S.q } : { mode: 'all' };
+}
+function currentLines(fam) {
+  let ls = familyLines(fam);
+  if (S.restrict === 'K') ls = ls.filter(l => l.active.length <= S.K);
+  if (S.restrict === 'q') ls = ls.filter(l => l.nIntervals <= S.q);
+  return ls;
+}
+function restrictText() {
+  return S.restrict === 'K' ? ` in L[${S.K}]` : S.restrict === 'q' ? ` in L(${S.q})` : '';
+}
+
+// ------------------------------------------------------------- notebook
+function log(html) {
+  const d = document.createElement('div');
+  d.className = 'ent';
+  const tm = new Date().toTimeString().slice(0, 8);
+  d.innerHTML = `<span class="tm">${tm}</span> · ${html}`;
+  const box = $('lablog');
+  box.appendChild(d);
+  while (box.children.length > 16) box.removeChild(box.firstChild);
+}
+
+// --------------------------------------------------------- three.js set-up
+const stage = $('stage'), tip = $('tip');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 100);
+scene.add(new THREE.AmbientLight(0x9aa8b8, 0.75));
+const dl = new THREE.DirectionalLight(0xfff4e0, 0.85);
+dl.position.set(3, 5, 4); scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0x88a0c0, 0.35);
+dl2.position.set(-4, -2, -3); scene.add(dl2);
+
+const pointsGroup = new THREE.Group(), linesGroup = new THREE.Group(),
+      hoverGroup = new THREE.Group(), frameGroup = new THREE.Group();
+scene.add(frameGroup, linesGroup, hoverGroup, pointsGroup);
+
+const sphereGeo = new THREE.SphereGeometry(1, 24, 16);
+const cylGeo = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true);
+
+const cam = { theta: 0.95, phi: 1.12, dist: 6, target: new THREE.Vector3() };
+function applyCamera() {
+  const sp = Math.sin(cam.phi), cp = Math.cos(cam.phi);
+  camera.position.set(
+    cam.target.x + cam.dist * sp * Math.cos(cam.theta),
+    cam.target.y + cam.dist * cp,
+    cam.target.z + cam.dist * sp * Math.sin(cam.theta));
+  camera.lookAt(cam.target);
+}
+function resetCamera() {
+  cam.dist = 2.1 + 1.35 * S.t * Math.sqrt(S.n) / 1.6 + (S.n === 3 ? 1.2 : 0.4);
+  if (S.n === 3) { cam.theta = 0.95; cam.phi = 1.12; }
+  else { cam.theta = Math.PI / 2; cam.phi = Math.PI / 2 - 0.001; }
+  applyCamera();
+}
+
+function positionOf(w) {
+  const off = (S.t + 1) / 2;
+  return new THREE.Vector3(
+    w[0] - off,
+    S.n >= 2 ? w[1] - off : 0,
+    S.n >= 3 ? w[2] - off : 0);
+}
+
+let pointMeshes = [];          // idx → mesh
+const POINT_R = () => 0.075 + 0.05 * (4 - S.t) / 2 + (S.n < 3 ? 0.04 : 0);
+
+function buildPoints() {
+  while (pointsGroup.children.length) {
+    const m = pointsGroup.children.pop();
+    m.material.dispose();
+  }
+  pointMeshes = [];
+  const W = HJ.words(S.t, S.n), R = POINT_R();
+  for (let i = 0; i < W.length; i++) {
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xffffff, roughness: 0.42, metalness: 0.08,
+      emissive: 0x000000, emissiveIntensity: 0.5 });
+    const m = new THREE.Mesh(sphereGeo, mat);
+    m.scale.setScalar(R);
+    m.position.copy(positionOf(W[i]));
+    m.userData = { idx: i, word: W[i] };
+    pointMeshes.push(m); pointsGroup.add(m);
+  }
+  // faint frame
+  while (frameGroup.children.length) {
+    const m = frameGroup.children.pop();
+    m.material.dispose(); m.geometry.dispose();
+  }
+  const ext = S.t - 1 + 0.55;
+  const box = new THREE.BoxGeometry(ext, S.n >= 2 ? ext : 0.001, S.n >= 3 ? ext : 0.001);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(box),
+    new THREE.LineBasicMaterial({ color: 0x2a333d, transparent: true, opacity: 0.9 }));
+  frameGroup.add(edges);
+  box.dispose();
+}
+
+function recolourPoints() {
+  for (let i = 0; i < pointMeshes.length; i++) {
+    const c = new THREE.Color(PALETTE[S.col[i] % PALETTE.length]);
+    pointMeshes[i].material.color.copy(c);
+    pointMeshes[i].material.emissive.copy(c).multiplyScalar(0.22);
+  }
+}
+
+// -------------------------------------------------- orbit / pinch / pick
+let userMoved = false, dragging = false, moved = 0;
+const pointers = new Map();
+let pinchD = 0;
+stage.addEventListener('pointerdown', e => {
+  stage.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  dragging = true; moved = 0; stage.classList.add('grabbing');
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinchD = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+});
+stage.addEventListener('pointermove', e => {
+  if (pointers.has(e.pointerId)) {
+    const p = pointers.get(e.pointerId);
+    const dx = e.clientX - p.x, dy = e.clientY - p.y;
+    p.x = e.clientX; p.y = e.clientY;
+    if (pointers.size === 1) {
+      moved += Math.abs(dx) + Math.abs(dy);
+      if (moved > 4) userMoved = true;
+      cam.theta += dx * 0.0075;
+      cam.phi = Math.min(Math.PI - 0.06, Math.max(0.06, cam.phi - dy * 0.0075));
+      applyCamera();
+    } else if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (pinchD > 0) {
+        cam.dist = Math.min(40, Math.max(1.2, cam.dist * pinchD / d));
+        applyCamera();
+      }
+      pinchD = d; userMoved = true; moved = 99;
+    }
+  } else {
+    hoverAt(e.clientX, e.clientY);
+  }
+});
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.delete(e.pointerId);
+  if (pointers.size === 0) {
+    dragging = false; stage.classList.remove('grabbing');
+    if (moved <= 4) pickAndPaint(e.clientX, e.clientY);
+  }
+}
+stage.addEventListener('pointerup', endPointer);
+stage.addEventListener('pointercancel', endPointer);
+stage.addEventListener('pointerleave', () => { if (!dragging) setHover(null, null); });
+stage.addEventListener('wheel', e => {
+  e.preventDefault(); userMoved = true;
+  cam.dist = Math.min(40, Math.max(1.2, cam.dist * Math.exp(e.deltaY * 0.0011)));
+  applyCamera();
+}, { passive: false });
+
+const raycaster = new THREE.Raycaster();
+function ndcOf(cx, cy) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  return { x: ((cx - rect.left) / rect.width) * 2 - 1,
+           y: -((cy - rect.top) / rect.height) * 2 + 1,
+           px: cx - rect.left, py: cy - rect.top, rect };
+}
+function pickPoint(cx, cy) {
+  const p = ndcOf(cx, cy);
+  raycaster.setFromCamera({ x: p.x, y: p.y }, camera);
+  const hits = raycaster.intersectObjects(pointMeshes, false);
+  return hits.length ? hits[0].object.userData.idx : null;
+}
+const _v = new THREE.Vector3();
+function screenXY(vec3, rect) {
+  _v.copy(vec3).project(camera);
+  return { x: (_v.x + 1) / 2 * rect.width, y: (-_v.y + 1) / 2 * rect.height, z: _v.z };
+}
+function distToSeg(px, py, a, b) {
+  const vx = b.x - a.x, vy = b.y - a.y;
+  const L2 = vx * vx + vy * vy || 1e-9;
+  let s = ((px - a.x) * vx + (py - a.y) * vy) / L2;
+  s = Math.max(0, Math.min(1, s));
+  return Math.hypot(px - (a.x + s * vx), py - (a.y + s * vy));
+}
+function pickLine(cx, cy) {
+  const p = ndcOf(cx, cy);
+  let best = null, bestD = 9;
+  drawnLines.forEach(rec => {
+    const pos = rec.line.points.map(ix => screenXY(pointMeshes[ix].position, p.rect));
+    for (let i = 0; i + 1 < pos.length; i++) {
+      if (pos[i].z > 1 || pos[i + 1].z > 1) continue;
+      const d = distToSeg(p.px, p.py, pos[i], pos[i + 1]);
+      if (d < bestD) { bestD = d; best = rec.line; }
+    }
+  });
+  return best;
+}
+
+function pickAndPaint(cx, cy) {
+  const idx = pickPoint(cx, cy);
+  if (idx === null) return;
+  const paint = Math.min(S.paint, S.r - 1);
+  let targets = [idx];
+  if (S.orbitPaint) {
+    const tp = HJ.cellKey(HJ.typeOf(HJ.words(S.t, S.n)[idx], S.t));
+    targets = [];
+    HJ.words(S.t, S.n).forEach((w, i) => {
+      if (HJ.cellKey(HJ.typeOf(w, S.t)) === tp) targets.push(i);
+    });
+  }
+  targets.forEach(i => { S.col[i] = paint; });
+  if (S.info.kind !== 'manual') {
+    S.info = { kind: 'manual', desc: 'hand-painted (edited)', omega: null, chi: null };
+    S.regen = null;
+  }
+  refresh('paint');
+}
+
+// ------------------------------------------------------------ animation
+let clockT = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  clockT += 0.016;
+  if (!userMoved && !reduceMotion) { cam.theta += 0.0022; applyCamera(); }
+  const pulse = reduceMotion ? 0.75 : 0.62 + 0.3 * Math.sin(clockT * 2.6);
+  monoMaterials.forEach(m => { m.emissiveIntensity = pulse; });
+  renderer.render(scene, camera);
+}
+function fitRenderer() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(() => { fitRenderer(); drawSimplex(); drawStrip(); }).observe(stage);
+
+// ================================================================ lines
+let drawnLines = [];               // [{line, meshes:[...], mono, colour}]
+let monoMaterials = [];
+let monoKeySet = new Set();
+
+function clearGroup(g) {
+  while (g.children.length) {
+    const m = g.children.pop();
+    if (m.material) m.material.dispose();
+  }
+}
+const UP = new THREE.Vector3(0, 1, 0);
+function segMesh(p1, p2, mat, radius) {
+  const dir = new THREE.Vector3().subVectors(p2, p1);
+  const len = dir.length();
+  const m = new THREE.Mesh(cylGeo, mat);
+  m.scale.set(radius, len, radius);
+  m.position.copy(p1).addScaledVector(dir, 0.5);
+  m.quaternion.setFromUnitVectors(UP, dir.normalize());
+  return m;
+}
+function addLine(group, line, mono, colourIx, rec) {
+  const mat = mono
+    ? new THREE.MeshStandardMaterial({
+        color: new THREE.Color(PALETTE[colourIx]).multiplyScalar(0.9),
+        emissive: new THREE.Color(PALETTE[colourIx]), emissiveIntensity: 0.7,
+        roughness: 0.5 })
+    : new THREE.MeshStandardMaterial({
+        color: 0x8ba1b8, transparent: true, opacity: 0.3, roughness: 0.8,
+        emissive: 0x334455, emissiveIntensity: 0.25, depthWrite: false });
+  const meshes = [];
+  for (let i = 0; i + 1 < line.points.length; i++) {
+    const a = pointMeshes[line.points[i]].position,
+          b = pointMeshes[line.points[i + 1]].position;
+    const seg = segMesh(a, b, mat, mono ? 0.036 : 0.014);
+    meshes.push(seg); group.add(seg);
+  }
+  if (mono) monoMaterials.push(mat);
+  if (rec) drawnLines.push({ line, meshes, mono, mat, baseR: mono ? 0.036 : 0.014 });
+  return meshes;
+}
+function buildLines() {
+  clearGroup(linesGroup); clearGroup(hoverGroup);
+  drawnLines = []; monoMaterials = [];
+  const active = currentLines(S.family);
+  const monos = HJ.monoLines(S.col, active);
+  monoKeySet = new Set(monos.map(l => l.key));
+  let toDraw = [];
+  if (S.display === 'all') toDraw = active;
+  else if (S.display === 'mono') toDraw = monos;
+  for (const l of toDraw)
+    addLine(linesGroup, l, monoKeySet.has(l.key), S.col[l.points[0]], true);
+}
+function drawHoverLines(idx) {
+  clearGroup(hoverGroup);
+  if (idx === null || S.display !== 'hover') return;
+  for (const l of currentLines(S.family)) {
+    if (!l.points.includes(idx)) continue;
+    addLine(hoverGroup, l, monoKeySet.has(l.key), S.col[l.points[0]], false);
+  }
+}
+function highlightLine(key, on) {
+  for (const rec of drawnLines) {
+    if (rec.line.key !== key) continue;
+    const r = on ? rec.baseR * 2.1 : rec.baseR;
+    rec.meshes.forEach(m => { m.scale.x = r; m.scale.z = r; });
+    if (!rec.mono) {
+      rec.mat.opacity = on ? 0.95 : 0.3;
+      rec.mat.color.set(on ? 0xe9e4d6 : 0x8ba1b8);
+    }
+  }
+}
+
+// ================================================================ hover
+let hoverIdx = null, hoverLineKey = null;
+function lineTip(l) {
+  const W = HJ.words(S.t, S.n);
+  const pts = l.points.map(i => W[i].join('')).join(', ');
+  let inv = '';
+  if (l.family === 'comb')
+    inv = `<br>invariant k=${l.invariant.k}, v=(${l.invariant.v.join(',')})`;
+  const mono = monoKeySet.has(l.key) ? ' · <b>monochromatic</b>' : '';
+  return `<b>${FAMNAME[l.family]} line</b> ${l.label}${mono}<br>{${pts}}` +
+         `<br>active {${l.active.map(i => i + 1).join(',')}} · ` +
+         `${l.nIntervals} interval${l.nIntervals > 1 ? 's' : ''}${inv}`;
+}
+function pointTip(idx) {
+  const w = HJ.words(S.t, S.n)[idx];
+  const tp = HJ.typeOf(w, S.t);
+  const lam = tp.reduce((s, m) => s + (m ? Math.pow(2, m) - 1 : 0), 0);
+  let lvl = '';
+  if (S.info.omega && S.info.omega.length === S.t)
+    lvl = `<br>⟨ω, type⟩ = ${HJ.weightF(S.info.omega, tp)}`;
+  return `<b>word ${w.join('')}</b> · colour ${S.col[idx]}` +
+         `<br>type (${tp.join(',')}) · σ = ${HJ.sigma(w)}` +
+         `<br>λ(x) = ${lam} lines through x (Lemma 7.4)${lvl}`;
+}
+function setHover(idx, line, cx, cy) {
+  if (hoverIdx !== null && pointMeshes[hoverIdx])
+    pointMeshes[hoverIdx].material.emissiveIntensity = 0.5;
+  if (hoverLineKey) highlightLine(hoverLineKey, false);
+  hoverIdx = idx; hoverLineKey = line ? line.key : null;
+  if (idx !== null) {
+    pointMeshes[idx].material.emissiveIntensity = 1.4;
+    tip.innerHTML = pointTip(idx);
+  } else if (line) {
+    highlightLine(line.key, true);
+    tip.innerHTML = lineTip(line);
+  }
+  drawHoverLines(idx);
+  const hlLevels = lineLevels(line);
+  drawStrip(hlLevels, idx);
+  drawSimplex(line && line.family === 'comb' ? cornerCellsOf(line) : null,
+              idx !== null ? HJ.cellKey(HJ.typeOf(HJ.words(S.t, S.n)[idx], S.t)) : null);
+  const showTip = Number.isFinite(cx) && Number.isFinite(cy);
+  if ((idx !== null || line) && showTip) {
+    tip.hidden = false;
+    const rect = stage.getBoundingClientRect();
+    tip.style.left = Math.min(cx - rect.left + 14, rect.width - 270) + 'px';
+    tip.style.top = Math.max(8, cy - rect.top - 12) + 'px';
+  } else tip.hidden = true;
+}
+function hoverAt(cx, cy) {
+  const idx = pickPoint(cx, cy);
+  const line = idx === null ? pickLine(cx, cy) : null;
+  setHover(idx, line, cx, cy);
+}
+function cornerCellsOf(line) {
+  const k = line.invariant.k, v = line.invariant.v;
+  const keys = new Set();
+  for (let a = 0; a < S.t; a++) {
+    const c = v.slice(); c[a] += k; keys.add(HJ.cellKey(c));
+  }
+  return keys;
+}
+function lineLevels(line) {
+  if (!line || line.family !== 'comb') return null;
+  if (!S.info.omega || S.info.omega.length !== S.t || !S.info.chi) return null;
+  const b = HJ.weightF(S.info.omega, line.invariant.v);
+  return { b, k: line.invariant.k,
+           levels: S.info.omega.map(o => b + line.invariant.k * o),
+           mono: monoKeySet.has(line.key), label: line.label };
+}
+
+// ============================================================== dossier
+function computeStats() {
+  const out = {};
+  for (const fam of ['comb', 'unit', 'geom', 'cyc']) {
+    const all = familyLines(fam);
+    let cur = all;
+    if (S.restrict === 'K') cur = all.filter(l => l.active.length <= S.K);
+    if (S.restrict === 'q') cur = all.filter(l => l.nIntervals <= S.q);
+    out[fam] = {
+      total: all.length, formula: HJ.lineCountFormula(S.t, S.n, fam),
+      cur: cur.length,
+      mono: HJ.monoLines(S.col, cur).length,
+      rainbow: HJ.rainbowLines(S.col, cur).length,
+    };
+  }
+  return out;
+}
+function renderFamTable(stats) {
+  const rows = ['<tr><th>family</th><th>lines</th><th>mono</th><th>rainbow</th><th></th></tr>'];
+  for (const fam of ['comb', 'unit', 'geom', 'cyc']) {
+    const s = stats[fam];
+    const dot = s.mono === 0 ? '<span class="dot ok"></span>' : '<span class="dot no"></span>';
+    rows.push(`<tr data-f="${fam}" class="${fam === S.family ? 'on' : ''}">` +
+      `<td>${FAMNAME[fam]}</td><td>${s.cur}${s.cur !== s.total ? '/' + s.total : ''}</td>` +
+      `<td>${s.mono}</td><td>${s.rainbow}</td><td>${dot}</td></tr>`);
+  }
+  $('famTable').innerHTML = rows.join('');
+  $('famTable').querySelectorAll('tr[data-f]').forEach(tr =>
+    tr.addEventListener('click', () => { setFamily(tr.dataset.f); }));
+  const okAll = ['comb', 'unit', 'geom', 'cyc'].every(f => stats[f].total === stats[f].formula);
+  $('formulaOK').textContent = okAll ? '✓ counts = §6.1 formulas' : '⚠ count mismatch';
+}
+function renderVerdict(stats) {
+  const s = stats[S.family];
+  const head = s.mono === 0
+    ? `<span class="ok">✔ line-free</span> — ${FAMNAME[S.family]} family, ` +
+      `${s.cur} line${s.cur !== 1 ? 's' : ''}${restrictText()} checked`
+    : `<span class="no">✘ ${s.mono} monochromatic ${FAMNAME[S.family]} ` +
+      `line${s.mono !== 1 ? 's' : ''}</span>${restrictText()}`;
+  const stab = HJ.stabilizerClass(S.col, S.t, S.n);
+  $('verdict').innerHTML = head +
+    `<div class="sub">colouring: ${S.info.desc} · stabiliser ${stab}` +
+    ` · rainbow: ${s.rainbow}</div>`;
+  $('lineTally').textContent =
+    `${FAMNAME[S.family]}: ${s.cur} lines${restrictText()}`;
+}
+function renderMonoList() {
+  const monos = HJ.monoLines(S.col, currentLines(S.family));
+  $('monoCount').textContent = monos.length ? `${monos.length}` : 'none ✓';
+  const box = $('monoList'); box.innerHTML = '';
+  const W = HJ.words(S.t, S.n);
+  monos.slice(0, 40).forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'li'; d.tabIndex = 0;
+    const c = S.col[l.points[0]];
+    d.innerHTML = `<span class="sw" style="background:${PALETTE[c]}"></span>` +
+      `<span>${l.label} · {${l.points.map(i => W[i].join('')).join(', ')}}</span>`;
+    const on = () => setHover(null, l, NaN, NaN), off = () => setHover(null, null);
+    d.addEventListener('mouseenter', on); d.addEventListener('mouseleave', off);
+    d.addEventListener('focus', on); d.addEventListener('blur', off);
+    box.appendChild(d);
+  });
+  if (monos.length > 40) {
+    const d = document.createElement('div'); d.className = 'li';
+    d.textContent = `… and ${monos.length - 40} more`; box.appendChild(d);
+  }
+  if (!monos.length) {
+    const d = document.createElement('div'); d.className = 'li';
+    d.innerHTML = `no monochromatic ${FAMNAME[S.family]} line${restrictText()}`;
+    box.appendChild(d);
+  }
+  const rb = HJ.rainbowLines(S.col, currentLines(S.family)).length;
+  $('rainbowNote').innerHTML = `rainbow lines (all ${S.t} colours distinct): <b>${rb}</b>` +
+    (S.r < S.t ? ` — needs r ≥ t` : '');
+}
+function renderChips() {
+  const box = $('chips'); box.innerHTML = '';
+  S.paint = Math.min(S.paint, S.r - 1);
+  for (let i = 0; i < S.r; i++) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === S.paint ? ' on' : '');
+    b.style.background = PALETTE[i];
+    b.setAttribute('aria-label', 'paint colour ' + i);
+    b.addEventListener('click', () => { S.paint = i; renderChips(); });
+    box.appendChild(b);
+  }
+  const counts = new Array(S.r).fill(0);
+  S.col.forEach(c => { if (c < S.r) counts[c]++; });
+  $('colourCounts').innerHTML = counts.map((k, i) =>
+    `<span><span class="swdot" style="background:${PALETTE[i]}"></span>${k}</span>`).join('') +
+    `<span>· ${S.col.length} points</span>`;
+}
+
+// ======================================================== simplex panel
+const simplexCv = $('simplex');
+let cellHits = [], simplexHoverKey = null, orbitBoost = [];
+function fit2d(cv, cssH) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.clientWidth || cv.parentElement.clientWidth;
+  cv.style.height = cssH + 'px';
+  cv.width = Math.round(w * dpr); cv.height = Math.round(cssH * dpr);
+  const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { g, w, h: cssH };
+}
+function cellColour(descent, mixed, key) {
+  if (descent) return PALETTE[descent.get(key)];
+  const set = mixed.get(key);
+  return set.size === 1 ? PALETTE[[...set][0]] : null;
+}
+function drawSimplex(hlKeys, hoverKey) {
+  const cssH = S.t === 2 ? 120 : S.t === 3 ? 220 : 200;
+  const { g, w, h } = fit2d(simplexCv, cssH);
+  g.clearRect(0, 0, w, h);
+  cellHits = [];
+  const descent = HJ.descentOf(S.col, S.t, S.n);
+  const mixed = new Map();
+  if (!descent) {
+    HJ.words(S.t, S.n).forEach((wd, i) => {
+      const k = HJ.cellKey(HJ.typeOf(wd, S.t));
+      if (!mixed.has(k)) mixed.set(k, new Set());
+      mixed.get(k).add(S.col[i]);
+    });
+  }
+  const drawCell = (x, y, rad, cell) => {
+    const key = HJ.cellKey(cell);
+    const fill = cellColour(descent, mixed, key);
+    g.beginPath(); g.arc(x, y, rad, 0, 7);
+    if (fill) { g.fillStyle = fill; g.fill(); }
+    else {
+      g.fillStyle = '#242d36'; g.fill();
+      g.strokeStyle = '#4a5561'; g.lineWidth = 1.4;
+      g.beginPath(); g.moveTo(x - rad * .55, y + rad * .55);
+      g.lineTo(x + rad * .55, y - rad * .55); g.stroke();
+    }
+    if (hlKeys && hlKeys.has(key)) {
+      g.strokeStyle = '#e9e4d6'; g.lineWidth = 2;
+      g.beginPath(); g.arc(x, y, rad + 3, 0, 7); g.stroke();
+    }
+    if (hoverKey === key || simplexHoverKey === key) {
+      g.strokeStyle = '#8ba1b8'; g.lineWidth = 2;
+      g.beginPath(); g.arc(x, y, rad + 3, 0, 7); g.stroke();
+    }
+    cellHits.push({ x, y, r: rad + 4, key, cell });
+  };
+  const pad = 20;
+  if (S.t === 2) {
+    // the levels V_0..V_n and the K_{n+1} pencil (Prop. 7.22)
+    const cells = HJ.simplex(2, S.n);      // (n−i, i)
+    const y0 = 44, dx = (w - 2 * pad) / Math.max(1, S.n);
+    const pos = i => pad + dx * i;
+    // pencil edges below
+    for (let i = 0; i <= S.n; i++) for (let j = i + 1; j <= S.n; j++) {
+      const ki = HJ.cellKey([S.n - i, i]), kj = HJ.cellKey([S.n - j, j]);
+      const ci = cellColour(descent, mixed, ki), cj = cellColour(descent, mixed, kj);
+      const same = ci && ci === cj;
+      g.strokeStyle = same ? ci : 'rgba(139,161,184,.28)';
+      g.lineWidth = same ? 2.2 : 1;
+      g.beginPath(); g.moveTo(pos(i), y0);
+      g.quadraticCurveTo((pos(i) + pos(j)) / 2, y0 + 14 + (j - i) * 16, pos(j), y0);
+      g.stroke();
+    }
+    cells.sort((a, b) => a[1] - b[1]).forEach(cell => drawCell(pos(cell[1]), y0, 9, cell));
+    g.fillStyle = '#6d7680'; g.font = '10px ui-monospace,monospace';
+    g.fillText('H_ω(n) = K_{n+1} on the levels — an edge is a corner pair (Prop. 7.22)', pad, h - 10);
+  } else if (S.t === 3) {
+    const A = { x: pad + 6, y: h - 26 }, B = { x: w - pad - 6, y: h - 26 },
+          C = { x: w / 2, y: 22 };
+    const rad = Math.min(11, (B.x - A.x) / (2.6 * (S.n + 1)));
+    for (const cell of HJ.simplex(3, S.n)) {
+      const [a1, a2, a3] = cell, m = Math.max(1, S.n);
+      const x = (a1 * A.x + a2 * B.x + a3 * C.x) / m,
+            y = (a1 * A.y + a2 * B.y + a3 * C.y) / m;
+      drawCell(S.n === 0 ? (A.x + B.x + C.x) / 3 : x,
+               S.n === 0 ? (A.y + B.y + C.y) / 3 : y, rad, cell);
+    }
+    g.fillStyle = '#6d7680'; g.font = 'italic 11px Georgia,serif';
+    g.fillText('a₁', A.x - 8, A.y + 16); g.fillText('a₂', B.x - 4, B.y + 16);
+    g.fillText('a₃', C.x + 12, C.y + 2);
+  } else {
+    // t = 4: slices by a₄ = m, each a triangle over (a₁,a₂,a₃)
+    const slices = S.n + 1, sw = (w - 2 * pad) / slices;
+    for (let m = 0; m <= S.n; m++) {
+      const x0 = pad + m * sw, size = S.n - m;
+      const A = { x: x0 + 8, y: h - 40 }, B = { x: x0 + sw - 14, y: h - 40 },
+            C = { x: x0 + sw / 2 - 3, y: 26 };
+      const rad = Math.min(9, sw / (2.8 * (size + 1)));
+      for (const c3 of HJ.simplex(3, size)) {
+        const cell = [c3[0], c3[1], c3[2], m], mm = Math.max(1, size);
+        const x = (c3[0] * A.x + c3[1] * B.x + c3[2] * C.x) / mm,
+              y = (c3[0] * A.y + c3[1] * B.y + c3[2] * C.y) / mm;
+        drawCell(size === 0 ? (A.x + B.x + C.x) / 3 : x,
+                 size === 0 ? (A.y + B.y + C.y) / 3 : y, rad, cell);
+      }
+      g.fillStyle = '#6d7680'; g.font = '10px ui-monospace,monospace';
+      g.fillText('a₄=' + m, x0 + sw / 2 - 14, h - 16);
+    }
+  }
+  renderCornerInfo(descent);
+}
+function renderCornerInfo(descent) {
+  const K = S.restrict === 'K' ? S.K : null;
+  const total = HJ.cornerTuples(S.t, S.n, K).length;
+  $('simplexLabel').textContent =
+    ` — T(${S.t})_${S.n}, ${HJ.simplex(S.t, S.n).length} cells`;
+  if (!descent) {
+    $('cornerInfo').innerHTML =
+      'colouring is <b>not symmetric</b> — mixed cells shown grey; ' +
+      'the reduction of Lemma 3.1 applies to symmetric colourings';
+    return;
+  }
+  const mono = HJ.monoCorners(descent, S.t, S.n, K).length;
+  $('cornerInfo').innerHTML =
+    `corner tuples C<sub>k,v</sub>${K ? ` (k ≤ ${K})` : ''}: <b>${total}</b> · ` +
+    `monochromatic: <b>${mono}</b> ` +
+    (mono === 0 ? '<span class="ok">✓ ⇒ line-free (Lemma 3.1)</span>'
+                : '<span class="no">✘ ⇒ monochromatic lines exist</span>');
+}
+simplexCv.addEventListener('mousemove', e => {
+  const rect = simplexCv.getBoundingClientRect();
+  const x = e.clientX - rect.left, y = e.clientY - rect.top;
+  let best = null;
+  for (const c of cellHits)
+    if (Math.hypot(x - c.x, y - c.y) <= c.r) { best = c; break; }
+  const key = best ? best.key : null;
+  if (key === simplexHoverKey) return;
+  simplexHoverKey = key;
+  orbitBoost.forEach(m => { m.material.emissiveIntensity = 0.5; });
+  orbitBoost = [];
+  if (best) {
+    const W = HJ.words(S.t, S.n);
+    let cnt = 0;
+    W.forEach((wd, i) => {
+      if (HJ.cellKey(HJ.typeOf(wd, S.t)) === key) {
+        pointMeshes[i].material.emissiveIntensity = 1.5;
+        orbitBoost.push(pointMeshes[i]); cnt++;
+      }
+    });
+    let lvl = '';
+    if (S.info.omega && S.info.omega.length === S.t)
+      lvl = ` · ⟨ω,·⟩ = ${HJ.weightF(S.info.omega, best.cell)}`;
+    $('cellInfo').innerHTML =
+      `cell (${best.cell.join(',')}) · orbit of <b>${cnt}</b> word${cnt > 1 ? 's' : ''}${lvl}`;
+  } else {
+    $('cellInfo').innerHTML = 'hover a cell — its S<sub>n</sub>-orbit lights up in the grid';
+  }
+  drawSimplex();
+});
+simplexCv.addEventListener('mouseleave', () => {
+  simplexHoverKey = null;
+  orbitBoost.forEach(m => { m.material.emissiveIntensity = 0.5; });
+  orbitBoost = [];
+  $('cellInfo').innerHTML = 'hover a cell — its S<sub>n</sub>-orbit lights up in the grid';
+  drawSimplex();
+});
+
+// ============================================================ level strip
+const stripCv = $('strip');
+function drawStrip(hl, hoverIdxLocal) {
+  const show = (S.info.kind === 'ow' || S.info.kind === 'sum') &&
+               S.info.omega && S.info.omega.length === S.t && S.info.chi;
+  $('stripPane').hidden = !show;
+  if (!show) return;
+  const { g, w, h } = fit2d(stripCv, 74);
+  g.clearRect(0, 0, w, h);
+  const omega = S.info.omega, chi = S.info.chi;
+  const realized = HJ.realizedLevels(S.t, S.n, omega);
+  const lo = Math.min(...realized), hi = Math.max(...realized);
+  const pad = 16, span = Math.max(1, hi - lo);
+  const X = v => pad + (v - lo) / span * (w - 2 * pad);
+  const y0 = 34;
+  g.strokeStyle = '#39434e'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(pad - 6, y0); g.lineTo(w - pad + 6, y0); g.stroke();
+  const rset = new Set(realized);
+  if (span <= 260) {
+    g.fillStyle = '#39434e';
+    for (let v = lo; v <= hi; v++) if (!rset.has(v)) {
+      g.beginPath(); g.arc(X(v), y0, 1.4, 0, 7); g.fill();
+    }
+  }
+  realized.forEach(v => {
+    g.beginPath(); g.arc(X(v), y0, 4, 0, 7);
+    g.fillStyle = PALETTE[((chi(v) % S.r) + S.r) % S.r]; g.fill();
+  });
+  if (hoverIdxLocal !== null && hoverIdxLocal !== undefined) {
+    const wd = HJ.words(S.t, S.n)[hoverIdxLocal];
+    const v = HJ.weightF(omega, HJ.typeOf(wd, S.t));
+    g.strokeStyle = '#e9e4d6';
+    g.beginPath(); g.moveTo(X(v), y0 - 12); g.lineTo(X(v), y0 - 5); g.stroke();
+  }
+  if (hl) {
+    g.strokeStyle = hl.mono ? '#e07a72' : '#e9e4d6'; g.lineWidth = 1.6;
+    const xs = hl.levels.map(X);
+    g.beginPath(); g.moveTo(Math.min(...xs), y0 + 12);
+    g.lineTo(Math.max(...xs), y0 + 12); g.stroke();
+    hl.levels.forEach(v => {
+      g.beginPath(); g.arc(X(v), y0, 7, 0, 7); g.stroke();
+      g.beginPath(); g.moveTo(X(v), y0 + 7); g.lineTo(X(v), y0 + 12); g.stroke();
+    });
+    $('stripInfo').innerHTML =
+      `line ${hl.label}: b = ⟨ω,v⟩ = <b>${hl.b}</b>, k = <b>${hl.k}</b> → homothet ` +
+      `b + k·S<sub>ω</sub> = {${hl.levels.slice().sort((a, b) => a - b).join(', ')}} ` +
+      (hl.mono ? '<span class="no">monochromatic</span>'
+               : '<span class="ok">bichromatic ✓</span>');
+  } else {
+    $('stripInfo').innerHTML = 'hover a combinatorial line — its homothet b + k·S<sub>ω</sub> appears here (Lemma 2.14)';
+  }
+  g.fillStyle = '#6d7680'; g.font = '10px ui-monospace,monospace';
+  g.fillText(String(lo), pad - 4, y0 + 26);
+  g.fillText(String(hi), w - pad - 10, y0 + 26);
+  $('stripLabel').textContent = ` ω = (${omega.join(',')}) · ${realized.length} realised levels`;
+}
+
+// ============================================================== refresh
+function refresh() {
+  $('gridLabel').textContent =
+    ` [${S.t}]${SUP(S.n)} → ${S.r} colour${S.r > 1 ? 's' : ''} · ${S.col.length} points`;
+  recolourPoints();
+  const stats = computeStats();
+  renderFamTable(stats);
+  renderVerdict(stats);
+  renderMonoList();
+  renderChips();
+  buildLines();
+  drawSimplex();
+  drawStrip();
+  if (window.HJX) HJX.onRefresh.forEach(f => { try { f(); } catch (e) { console.error(e); } });
+}
+function rebuildAll() {
+  lineCache.clear();
+  buildPoints();
+  resetCamera();
+  refresh();
+}
+function setColouring(col, info, regen) {
+  S.col = col; S.info = info; S.regen = regen || null;
+  refresh();
+}
+function regenerate(reason) {
+  const need = Math.pow(S.t, S.n);
+  const made = S.regen ? S.regen(S.t, S.n, S.r) : null;
+  if (made) { S.col = made.col; S.info = made.info; return; }
+  if (S.col.length === need) {                 // keep the colouring, clamp to r
+    S.col = S.col.map(c => ((c % S.r) + S.r) % S.r);
+    if (S.regen) {
+      S.regen = null;
+      log('previous colouring rule not defined at the new parameters — kept the colours as painted');
+    }
+    return;
+  }
+  S.col = HJ.randomColouring(S.t, S.n, S.r);
+  S.info = { kind: 'random', desc: 'random', omega: null, chi: null };
+  S.regen = (t, n, r) => ({ col: HJ.randomColouring(t, n, r),
+    info: { kind: 'random', desc: 'random', omega: null, chi: null } });
+  log('grid size changed — drew a random colouring');
+}
+
+// ============================================================= controls
+function setFamily(f) {
+  S.family = f;
+  document.querySelectorAll('#seg-family button').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === f));
+  refresh();
+}
+function bindSeg(id, fn) {
+  document.querySelectorAll('#' + id + ' button').forEach(b =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#' + id + ' button').forEach(x =>
+        x.classList.toggle('on', x === b));
+      fn(b.dataset.v);
+    }));
+}
+bindSeg('seg-family', setFamily);
+bindSeg('seg-restrict', v => {
+  S.restrict = v;
+  $('row-Kq').hidden = v === 'all';
+  $('nm-Kq').textContent = v === 'q' ? 'q' : 'K';
+  $('v-Kq').textContent = v === 'q' ? S.q : S.K;
+  $('sl-Kq').value = v === 'q' ? S.q : S.K;
+  refresh();
+});
+bindSeg('seg-display', v => { S.display = v; refresh(); });
+$('sl-Kq').addEventListener('input', e => {
+  const v = +e.target.value;
+  if (S.restrict === 'q') S.q = v; else S.K = v;
+  $('v-Kq').textContent = v; refresh();
+});
+$('ck-orbit').addEventListener('change', e => { S.orbitPaint = e.target.checked; });
+
+function syncParamSliders() {
+  $('sl-t').value = S.t; $('v-t').textContent = S.t;
+  $('sl-n').value = S.n; $('v-n').textContent = S.n;
+  $('sl-r').value = S.r; $('v-r').textContent = S.r;
+  $('sl-Kq').max = S.n;
+  S.K = Math.min(S.K, S.n); S.q = Math.min(S.q, S.n);
+  $('v-Kq').textContent = S.restrict === 'q' ? S.q : S.K;
+  $('sl-Kq').value = S.restrict === 'q' ? S.q : S.K;
+}
+$('sl-t').addEventListener('input', e => {
+  S.t = +e.target.value; syncParamSliders();
+  populatePresets(); regenerate('t'); rebuildAll();
+});
+$('sl-n').addEventListener('input', e => {
+  S.n = +e.target.value; syncParamSliders();
+  regenerate('n'); rebuildAll();
+});
+$('sl-r').addEventListener('input', e => {
+  S.r = +e.target.value; syncParamSliders();
+  regenerate('r'); S.col = S.col.map(c => c % S.r); refresh();
+});
+
+$('b-random').addEventListener('click', () => {
+  const regen = (t, n, r) => ({ col: HJ.randomColouring(t, n, r),
+    info: { kind: 'random', desc: 'random', omega: null, chi: null } });
+  const m = regen(S.t, S.n, S.r); setColouring(m.col, m.info, regen);
+});
+$('b-randsym').addEventListener('click', () => {
+  const regen = (t, n, r) => ({ col: HJ.randomSymmetric(t, n, r),
+    info: { kind: 'sym', desc: 'random symmetric (descent on T, Lemma 2.4)',
+            omega: null, chi: null } });
+  const m = regen(S.t, S.n, S.r); setColouring(m.col, m.info, regen);
+});
+$('b-clear').addEventListener('click', () => {
+  const regen = (t, n) => ({ col: new Array(Math.pow(t, n)).fill(0),
+    info: { kind: 'manual', desc: 'constant (colour 0)', omega: null, chi: null } });
+  const m = regen(S.t, S.n); setColouring(m.col, m.info, regen);
+});
+
+// one-weight editor -----------------------------------------------------
+$('sel-chi').addEventListener('change', () => {
+  $('lbl-pattern').hidden = $('sel-chi').value !== 'periodic';
+});
+function parseInts(s) {
+  const v = s.split(/[,\s]+/).filter(x => x.length).map(Number);
+  return v.every(Number.isInteger) && v.length ? v : null;
+}
+$('b-ow').addEventListener('click', () => {
+  const omega = parseInts($('in-omega').value);
+  if (!omega || omega.length !== S.t) {
+    log(`<b>ω</b> must be ${S.t} integers (t = ${S.t})`); return;
+  }
+  const mode = $('sel-chi').value;
+  let chi, chidesc;
+  if (mode === 'periodic') {
+    const pat = parseInts($('in-pattern').value);
+    if (!pat) { log('pattern must be a list of integers'); return; }
+    const p = pat.map(x => ((x % S.r) + S.r) % S.r);
+    chi = HJ.periodic(p); chidesc = `χ = pattern mod ${p.length}`;
+  } else if (mode === 'modr') {
+    chi = x => ((x % S.r) + S.r) % S.r; chidesc = 'χ = x mod r';
+  } else {
+    const map = new Map();
+    HJ.realizedLevels(S.t, S.n, omega).forEach(l =>
+      map.set(l, Math.floor(Math.random() * S.r)));
+    chi = x => map.has(x) ? map.get(x) : 0; chidesc = 'χ random on levels';
+  }
+  const isSum = omega.every((o, i) => o === omega[0] + i * (omega[1] - omega[0])) &&
+                omega[1] - omega[0] === 1;
+  const info = { kind: isSum ? 'sum' : 'ow',
+    desc: `one-weight ω=(${omega.join(',')}), ${chidesc}`, omega, chi };
+  const regen = (t, n, r) => t === omega.length && r >= 1
+    ? { col: HJ.oneWeight(t, n, omega, x => ((chi(x) % r) + r) % r), info } : null;
+  setColouring(HJ.oneWeight(S.t, S.n, omega, x => ((chi(x) % S.r) + S.r) % S.r),
+               info, regen);
+  log(`applied c<sub>ω,χ</sub> with ω=(${omega.join(',')})`);
+});
+
+// presets ---------------------------------------------------------------
+function owPreset(omega, chi, desc) {
+  const info = { kind: 'ow', desc, omega, chi };
+  const mk = (t, n, r) => t !== omega.length ? null :
+    { col: HJ.oneWeight(t, n, omega, x => ((chi(x) % r) + r) % r), info };
+  return mk;
+}
+const PRESETS = [
+  { id: 'p314', label: '⌊(σ mod 4)/2⌋ — line-free on [3]³ (Prop. 3.14)', t: 3, n: 3, r: 2,
+    note: 'The symmetric witness for HJ(3,2) = 4.',
+    make: () => {
+      const chi = s => Math.floor((s % 4) / 2);
+      const info = { kind: 'sum', desc: '⌊(σ mod 4)/2⌋ (Prop. 3.14)',
+                     omega: [1, 2, 3], chi };
+      const mk = (t, n, r) => t === 3 ? { col: HJ.sumType(3, n, chi), info } : null;
+      return { mk };
+    } },
+  { id: 'a1', label: 'Record slice — Table A.1 rows 18–21 (Lemma 3.3)', t: 3, n: 3, r: 3,
+    note: 'The 253-cell HJ(3,3) ≥ 22 witness, restricted to [3]³ by the monotonicity shift.',
+    make: () => {
+      const tail = { 18: '1001', 19: '120', 20: '20', 21: '0' };
+      const mk = (t, n, r) => {
+        if (t !== 3 || n !== 3 || r < 3) return null;
+        const d = new Map();
+        for (const c of HJ.simplex(3, 3))
+          d.set(HJ.cellKey(c), +tail[18 + c[0]][c[1]]);
+        return { col: HJ.liftDescent(d, 3, 3),
+          info: { kind: 'sym', desc: 'Table A.1 slice (Lemma 3.3)', omega: null, chi: null } };
+      };
+      return { mk };
+    } },
+  { id: 'psi13', label: 'ω=(0,5,7), ψ mod 13 — HJ^[12](3,3)=∞ (Thm 4.10)', t: 3, r: 3,
+    note: 'No monochromatic line with ≤ 12 active coordinates, in any dimension.',
+    make: () => ({ mk: owPreset([0, 5, 7],
+      HJ.periodic([1, 0, 0, 1, 0, 1, 0, 0, 1, 2, 2, 2, 2]),
+      'ω=(0,5,7), ψ mod 13 (Thm 4.10)') }) },
+  { id: 'sum1233', label: '12-periodic sum palette at (3,3) (Prop. 4.5)', t: 3, r: 3,
+    note: 'κ_sum(3,3) = 11: no monochromatic 3-AP of gap ≤ 11.',
+    make: () => ({ mk: owPreset([1, 2, 3],
+      HJ.periodic([2, 0, 1, 2, 1, 1, 0, 1, 2, 0, 0, 2]),
+      '12-periodic sum palette (Prop. 4.5)') }) },
+  { id: 'chi13', label: 'ω=(0,2,3,5), χ₀ mod 13 — HJ^[12](4,2)=∞ (Thm 4.11)', t: 4, r: 2,
+    note: 'The mod-13 shadow of the record: line-free at every bracket K ≤ 12.',
+    make: () => ({ mk: owPreset([0, 2, 3, 5],
+      x => [4, 5, 7, 9, 11, 12].includes(((x % 13) + 13) % 13) ? 1 : 0,
+      'ω=(0,2,3,5), χ₀ mod 13 (Thm 4.11)') }) },
+  { id: 'rec26', label: 'Record palette mod 26 — HJ(4,2) ≥ 14 (Thm 3.10)', t: 4, r: 2,
+    note: 'Line-free on [4]ⁿ for every n ≤ 13; the (4,2) record.',
+    make: () => ({ mk: owPreset([0, 2, 3, 5],
+      HJ.periodic([1,0,1,0,0,1,1,1,1,0,0,1,0,0,0,1,0,0,1,1,1,1,0,0,1,0]),
+      'record palette mod 26 (Thm 3.10)') }) },
+  { id: 'summodr', label: 'σ mod r — line-free iff n < r (Prop. 2.2 / Rem. 6.5)',
+    note: 'At t = 2 this is exactly the HJ(2, r) = r witness.',
+    make: () => {
+      const mk = (t, n, r) => {
+        const chi = x => ((x % r) + r) % r;
+        return { col: HJ.sumType(t, n, chi),
+          info: { kind: 'sum', desc: `σ mod ${r}`,
+                  omega: Array.from({ length: t }, (_, i) => i + 1), chi } };
+      };
+      return { mk };
+    } },
+  { id: 'parity', label: 'Parity σ mod 2 — kills L^[1] (Prop. 4.1)',
+    note: 'Set the restriction to K = 1: every 1-active line alternates.',
+    make: () => {
+      const chi = x => ((x % 2) + 2) % 2;
+      const mk = (t, n, r) => r < 2 ? null : { col: HJ.sumType(t, n, chi),
+        info: { kind: 'sum', desc: 'parity σ mod 2 (Prop. 4.1)',
+                omega: Array.from({ length: t }, (_, i) => i + 1), chi } };
+      return { mk, restrict: { mode: 'K', val: 1 } };
+    } },
+  { id: 'block', label: 'Block palette 0^{t−1}…(r−1)^{t−1} (Thm 4.3)',
+    note: 'Avoids every line with < (t−1)r active coordinates, in any dimension.',
+    make: () => {
+      const mk = (t, n, r) => {
+        const b = t - 1, m = b * r;
+        const chi = x => Math.floor((((x % m) + m) % m) / b);
+        return { col: HJ.sumType(t, n, chi),
+          info: { kind: 'sum', desc: `block palette, period ${m} (Thm 4.3)`,
+                  omega: Array.from({ length: t }, (_, i) => i + 1), chi } };
+      };
+      return { mk };
+    } },
+  { id: 'unit2', label: '(i+j) mod t ∈ {0,1} — unit-line-free on ℤ_t² (Prop. 6.6)',
+    n: 2, r: 2, note: 'Switches the family to unit-cyclic; needs t ≥ 3.',
+    family: 'unit',
+    make: () => {
+      const mk = (t, n, r) => {
+        if (t < 3 || n !== 2) return null;
+        const col = HJ.words(t, 2).map(w => ((w[0] % t) + (w[1] % t)) % t <= 1 ? 1 : 0);
+        return { col, info: { kind: 'preset',
+          desc: '(i+j) mod t ∈ {0,1} (Prop. 6.6)', omega: null, chi: null } };
+      };
+      return { mk };
+    } },
+  { id: 'radix', label: 'Radix one-weight — ow = sym (Thm 3.5)',
+    note: 'ω = (0, 1, p, p²), p = n+1: injective on T, so one weight realises a random symmetric colouring.',
+    make: () => {
+      const mk = (t, n, r) => {
+        const p = n + 1;
+        const omega = [0, 1, p, p * p].slice(0, t);
+        const map = new Map();
+        HJ.realizedLevels(t, n, omega).forEach(l =>
+          map.set(l, Math.floor(Math.random() * r)));
+        const chi = x => map.has(x) ? map.get(x) : 0;
+        return { col: HJ.oneWeight(t, n, omega, chi),
+          info: { kind: 'ow', desc: `radix ω=(${omega.join(',')}) (Thm 3.5)`, omega, chi } };
+      };
+      return { mk };
+    } },
+];
+function populatePresets() {
+  const sel = $('sel-preset'); sel.innerHTML = '';
+  PRESETS.filter(p => p.t === undefined || p.t === S.t).forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id; o.textContent = p.label; sel.appendChild(o);
+  });
+  updatePresetNote();
+}
+function updatePresetNote() {
+  const p = PRESETS.find(x => x.id === $('sel-preset').value);
+  $('preset-note').textContent = p ? p.note : '';
+}
+$('sel-preset').addEventListener('change', updatePresetNote);
+function loadPreset(id) {
+  const p = PRESETS.find(x => x.id === id);
+  if (!p) return;
+  if (p.t) S.t = p.t;
+  if (p.n) S.n = p.n;
+  if (p.r && S.r < p.r) S.r = p.r;
+  const built = p.make();
+  const made = built.mk(S.t, S.n, S.r);
+  if (!made) { log(`preset needs different parameters`); return; }
+  if (p.family) S.family = p.family;
+  if (built.restrict) {
+    S.restrict = built.restrict.mode;
+    if (built.restrict.mode === 'K') S.K = Math.min(built.restrict.val, S.n);
+    document.querySelectorAll('#seg-restrict button').forEach(b =>
+      b.classList.toggle('on', b.dataset.v === S.restrict));
+    $('row-Kq').hidden = S.restrict === 'all';
+    $('nm-Kq').textContent = 'K';
+  }
+  document.querySelectorAll('#seg-family button').forEach(b =>
+    b.classList.toggle('on', b.dataset.v === S.family));
+  syncParamSliders(); populatePresets();
+  $('sel-preset').value = id; updatePresetNote();
+  S.col = made.col; S.info = made.info; S.regen = built.mk;
+  rebuildAll();
+  log(`loaded preset: <b>${p.label}</b>`);
+}
+$('b-preset').addEventListener('click', () => loadPreset($('sel-preset').value));
+
+// tools ------------------------------------------------------------------
+function famArgs() {
+  return [S.family, S.restrict === 'K' ? S.K : null, S.restrict === 'q' ? S.q : null];
+}
+$('b-find').addEventListener('click', () => {
+  const [fam, K, q] = famArgs();
+  const res = HJ.findLineFree(S.t, S.n, S.r, fam, K, q, 4000);
+  if (res.colouring) {
+    setColouring(res.colouring,
+      { kind: 'search', desc: `search witness (${FAMNAME[fam]}${restrictText()})`,
+        omega: null, chi: null }, null);
+    log(`<b>found</b> a line-free ${S.r}-colouring of [${S.t}]${SUP(S.n)} for the ` +
+        `${FAMNAME[fam]} family${restrictText()}`);
+  } else if (res.searched) {
+    log(`<b>none exists</b>: every ${S.r}-colouring of [${S.t}]${SUP(S.n)} has a ` +
+        `monochromatic ${FAMNAME[fam]} line${restrictText()} ⇒ ` +
+        `HJ<sub>${fam}</sub>${restrictText()}(${S.t},${S.r}) ≤ ${S.n} (exhaustive backtracking)`);
+  } else log('search inconclusive within the 4 s budget');
+});
+$('b-diag').addEventListener('click', () => {
+  const res = HJ.findDiagonalOnly(S.t, S.n, S.r, 4000);
+  if (res.colouring) {
+    if (S.family !== 'comb') setFamily('comb');
+    setColouring(res.colouring,
+      { kind: 'search', desc: 'diagonal-only witness (Conj. 4.23)', omega: null, chi: null },
+      null);
+    log(`<b>diagonal-only</b> colouring found: the only monochromatic combinatorial ` +
+        `line of [${S.t}]${SUP(S.n)} is the diagonal ∗…∗ — certifies L^[${S.n - 1}]-line-freeness`);
+  } else if (res.searched) log('no diagonal-only colouring exists at these parameters');
+  else log('search inconclusive within the 4 s budget');
+});
+$('b-countsym').addEventListener('click', () => {
+  let K = S.restrict === 'K' ? S.K : null;
+  if (S.restrict === 'q')
+    log('interval restrictions are invisible to symmetric colourings ' +
+        '(Prop. 4.15) — counting without restriction');
+  const res = HJ.countLineFreeSymmetric(S.t, S.n, S.r, K, 5000);
+  const tag = (S.t === 3 && S.n === 3 && S.r === 2 && K === null)
+    ? ' — Table A.5 ✓' : '';
+  log(`symmetric line-free ${S.r}-colourings of [${S.t}]${SUP(S.n)}` +
+      (K ? ` (L[${K}])` : '') + ': ' +
+      (res.exhausted ? `<b>= ${res.count}</b>${tag}` : `<b>≥ ${res.count}</b> (5 s budget hit)`) +
+      ` · counted on the ${HJ.simplex(S.t, S.n).length}-cell simplex via Lemma 3.1`);
+});
+$('b-countall').addEventListener('click', () => {
+  const [fam, K, q] = famArgs();
+  const res = HJ.countLineFree(S.t, S.n, S.r, fam, K, q, 6000);
+  const tag = (S.t === 3 && S.n === 3 && S.r === 2 && fam === 'comb' && !K && !q)
+    ? ' — Table A.5 ✓' : '';
+  log(`line-free ${S.r}-colourings of [${S.t}]${SUP(S.n)}, ${FAMNAME[fam]}` +
+      `${restrictText()}: ` +
+      (res.exhausted ? `<b>= ${res.count}</b>${tag}` : `<b>≥ ${res.count}</b> (6 s budget hit)`));
+});
+$('b-minmono').addEventListener('click', () => {
+  const [fam, K, q] = famArgs();
+  const states = Math.pow(S.r, Math.pow(S.t, S.n));
+  if (states > 2097152) {
+    log(`brute force needs r^(tⁿ) = ${S.r}^${Math.pow(S.t, S.n)} colourings — too many; ` +
+        `try smaller t, n or r (e.g. t=3, n=2, r=2, cyclic → Prop. 7.9)`);
+    return;
+  }
+  const m = HJ.minMonochromatic(S.t, S.n, S.r, fam, K, q);
+  const tag = (S.t === 3 && S.n === 2 && S.r === 2 && fam === 'cyc' && !K && !q)
+    ? ' — Prop. 7.9 ✓' : '';
+  log(`minimum # monochromatic ${FAMNAME[fam]} lines${restrictText()} over all ` +
+      `${states} colourings: <b>${m}</b>${tag}`);
+});
+$('b-export').addEventListener('click', () => {
+  const data = { t: S.t, n: S.n, r: S.r, colours: S.col,
+    family: S.family, restriction: restrictOf(),
+    meta: { desc: S.info.desc, page: 'hales-jewett-explorer' } };
+  const txt = JSON.stringify(data);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' }));
+  a.download = `hj-colouring-t${S.t}n${S.n}r${S.r}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+  log('exported JSON (and copied to clipboard) — check it with ' +
+      '<b>python/check_line_free.py</b>');
+});
+$('b-import').addEventListener('click', () => $('dlg-import').showModal());
+$('b-import-cancel').addEventListener('click', () => $('dlg-import').close());
+$('b-import-load').addEventListener('click', () => {
+  try {
+    const d = JSON.parse($('import-text').value);
+    const cols = d.colours || d.colors;
+    const t = +d.t, n = +d.n, r = +d.r;
+    if (!(t >= 2 && t <= 4 && n >= 1 && n <= 3 && r >= 1 && r <= 6))
+      throw new Error('need t∈[2,4], n∈[1,3], r∈[1,6]');
+    if (!Array.isArray(cols) || cols.length !== Math.pow(t, n))
+      throw new Error(`colours must have length t^n = ${Math.pow(t, n)}`);
+    S.t = t; S.n = n; S.r = r;
+    syncParamSliders(); populatePresets();
+    S.col = cols.map(c => ((c % r) + r) % r);
+    S.info = { kind: 'import', desc: 'imported', omega: null, chi: null };
+    S.regen = null;
+    $('dlg-import').close();
+    rebuildAll();
+    log('imported colouring');
+  } catch (err) {
+    log(`import failed: ${err.message}`);
+  }
+});
+
+// ============================================== bridge for extra panels
+let extBoost = [];
+window.HJX = {
+  onRefresh: [],
+  palette: PALETTE,
+  getState: () => S,
+  boostWords(idxs) {
+    extBoost.forEach(m => { if (m.material) m.material.emissiveIntensity = 0.5; });
+    extBoost = (idxs || []).map(i => pointMeshes[i]).filter(Boolean);
+    extBoost.forEach(m => { m.material.emissiveIntensity = 1.6; });
+  },
+  clearBoost() { this.boostWords([]); },
+};
+
+// ================================================================= init
+populatePresets();
+fitRenderer();
+loadPreset('p314');
+$('sel-chi').dispatchEvent(new Event('change'));
+log('welcome — the grid shows the thesis\'s own line-free 2-colouring of [3]³ ' +
+    '(Prop. 3.14). Family counts are re-derived from the definitions and checked ' +
+    'against the §6.1 formulas on every change.');
+animate();
+
+})();
+
+</script>
+<script>
+/* =====================================================================
+   Extras — Chapter 7 graph constructions and the Rado reading (§2.4)
+   ---------------------------------------------------------------------
+   Pure parts (HJPURE) are node-testable; the panels read the live
+   explorer state through the HJX bridge and re-render on every refresh.
+   ===================================================================== */
+'use strict';
+const HJPURE = (() => {
+  const gcd2 = (a, b) => { a = Math.abs(a); b = Math.abs(b);
+    while (b) { const t = a % b; a = b; b = t; } return a; };
+
+  // sorted distinct values, translated to min 0 and divided by the gcd
+  // (Lemma 2.17: the pattern matters only up to ±c·S + d)
+  function normaliseS(vals) {
+    const raw = [...new Set(vals)].sort((a, b) => a - b);
+    if (raw.length < 2) return { raw, S0: raw.map(x => x - (raw[0] || 0)), g: 1 };
+    let g = 0;
+    raw.forEach(s => { g = gcd2(g, s - raw[0]); });
+    return { raw, S0: raw.map(s => (s - raw[0]) / g), g };
+  }
+
+  // Prop. 2.19: a basis of the lattice Λ_s of affine dependencies of s,
+  // one 3-term relation per consecutive triple; each equation has
+  // coefficient sum 0 (Rado's column condition) and ⟨c, s⟩ = 0.
+  function radoEquations(S0) {
+    const V = ['X\u2081', 'X\u2082', 'X\u2083', 'X\u2084'];
+    const term = (co, i) => (co === 1 ? '' : co + '\u00b7') + V[i];
+    const eqs = [];
+    for (let i = 0; i + 2 < S0.length; i++) {
+      let c = [S0[i + 1] - S0[i + 2], S0[i + 2] - S0[i], S0[i] - S0[i + 1]];
+      let g = 0; c.forEach(x => { g = gcd2(g, x); });
+      c = c.map(x => x / g);
+      if (c[0] < 0) c = c.map(x => -x);
+      const L = [], R = [];
+      c.forEach((co, j) => {
+        if (co > 0) L.push(term(co, i + j));
+        else if (co < 0) R.push(term(-co, i + j));
+      });
+      eqs.push({ coef: c, vars: [i, i + 1, i + 2],
+                 text: (L.join(' + ') || '0') + ' = ' + (R.join(' + ') || '0') });
+    }
+    return eqs;
+  }
+
+  // Exact scan of Lemma 2.14: the homothet classes realised on [t]^n are
+  //   b + k·S_ω  with 1 ≤ k ≤ n and b ∈ ⟨ω, T^(t)_{n−k}⟩.
+  // reflected = true scans the reflected pattern (min+max) − ω instead —
+  // sets of the form b' + k·(−S), which the grid never realises
+  // (Example 2.20) — restricted to copies landing inside Λ_ω(n).
+  function homothetScan(HJref, t, n, omega, chi, reflected) {
+    const mn = Math.min(...omega), mx = Math.max(...omega);
+    const pat = reflected ? omega.map(o => mn + mx - o) : omega;
+    const realised = new Set(HJref.realizedLevels(t, n, omega));
+    let count = 0, first = null;
+    for (let k = 1; k <= n; k++) {
+      const bases = new Set();
+      HJref.simplex(t, n - k).forEach(v => bases.add(HJref.weightF(omega, v)));
+      for (const b of bases) {
+        const levels = pat.map(p => b + k * p);
+        if (reflected && !levels.every(l => realised.has(l))) continue;
+        const c0 = chi(levels[0]);
+        if (levels.every(l => chi(l) === c0)) {
+          count++;
+          if (!first) first = { k, b, levels: levels.slice() };
+        }
+      }
+    }
+    return { count, first };
+  }
+
+  // Gallai-number rows computed in the thesis (Table 2.1), keyed r|S0
+  const KNOWN_G = {
+    '2|0,1': { G: '3', bound: '2', note: 'G_r({0,1}) = r+1 — tight (HJ(2,r)=r)' },
+    '3|0,1': { G: '4', bound: '3', note: 'G_r({0,1}) = r+1 — tight' },
+    '4|0,1': { G: '5', bound: '4', note: 'G_r({0,1}) = r+1 — tight' },
+    '5|0,1': { G: '6', bound: '5', note: 'G_r({0,1}) = r+1 — tight' },
+    '6|0,1': { G: '7', bound: '6', note: 'G_r({0,1}) = r+1 — tight' },
+    '2|0,1,2': { G: '9', bound: '4', note: '= W(3,2); tight at (3,2)' },
+    '3|0,1,2': { G: '27', bound: '13', note: '= W(3,3): the van der Waerden shadow' },
+    '3|0,1,3': { G: '42', bound: '14', note: 'new in the thesis (Thm 2.22)' },
+    '3|0,1,4': { G: '57', bound: '14', note: 'new in the thesis (Thm 2.22)' },
+    '3|0,2,5': { G: '≥ 77', bound: '≥ 16', note: 'the ratio champion (Thm 2.22)' },
+    '2|0,1,2,3': { G: '35', bound: '12', note: '= W(4,2)' },
+    '2|0,2,3,5': { G: '67', bound: '14', note: 'the (4,2) record weight (Thm 3.10)' },
+    '2|0,1,5,6': { G: '80', bound: '14', note: 'second (4,2) champion' },
+  };
+
+  return { normaliseS, radoEquations, homothetScan, KNOWN_G };
+})();
+if (typeof module !== 'undefined') module.exports = HJPURE;
+
+/* ======================================================================
+   Browser panels
+   ====================================================================== */
+if (typeof window !== 'undefined') (function () {
+  const PAL = HJX.palette;
+  const $ = id => document.getElementById(id);
+  const state = () => HJX.getState();
+  function fit2d(cv, cssH) {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = cv.clientWidth || cv.parentElement.clientWidth;
+    cv.style.height = cssH + 'px';
+    cv.width = Math.round(w * dpr); cv.height = Math.round(cssH * dpr);
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { g, w, h: cssH };
+  }
+  const esc = a => a.join(',');
+
+  /* ------------------------------------------------------------ Rado */
+  function updateRado() {
+    if (!$('radoEq')) return;
+    const S = state();
+    const live = (S.info.kind === 'ow' || S.info.kind === 'sum') &&
+                 S.info.omega && S.info.omega.length === S.t && S.info.chi;
+    const vals = live ? S.info.omega : [0, 1, 3];
+    const { raw, S0 } = HJPURE.normaliseS(vals);
+    const D = S0.length ? S0[S0.length - 1] : 0;
+    const degen = raw.length < vals.length;
+
+    $('radoS').innerHTML =
+      (live ? `current weight ω = (${vals.join(', ')})`
+            : `example pattern (apply a one-weight colouring above to make this live)`) +
+      ` → S = {${raw.join(', ')}}, normalised S₀ = {${S0.join(', ')}}` +
+      ` (Lemma 2.17), diameter D = ${D}` +
+      (degen ? ' · <b>degenerate weight</b> — repeated values (Rem. 7.23)' : '');
+
+    if (S0.length < 3) {
+      $('radoEq').innerHTML =
+        `t − 2 = ${Math.max(0, S0.length - 2)} equations: a two-point pattern has no ` +
+        `Rado system — its homothets are just the pairs {b, b+kD}.`;
+    } else {
+      const eqs = HJPURE.radoEquations(S0);
+      $('radoEq').innerHTML =
+        `E<sub>s</sub> (Prop. 2.19 — ${eqs.length} equation${eqs.length > 1 ? 's' : ''}, ` +
+        `each with coefficient sum 0, hence partition regular):` +
+        `<div class="mono" style="margin:6px 0 4px;color:var(--chalk)">` +
+        eqs.map(e => e.text).join('&ensp;·&ensp;') + `</div>` +
+        `injective solutions = a·<b>1</b> + d·<b>s</b>: homothets of S₀ for d ≥ 1 ` +
+        `and of the reflected −S₀ for d ≤ −1; <b>the grid realises only d ≥ 1</b> (Ex. 2.20).`;
+    }
+
+    // matched Gallai row → closed-form bound (Thm 2.15)
+    const row = HJPURE.KNOWN_G[S.r + '|' + esc(S0)];
+    $('radoBound').innerHTML = row
+      ? `G<sub>${S.r}</sub>(S₀) = <b>${row.G}</b> ⇒ HJ(${S0.length}, ${S.r}) ≥ ` +
+        `⌈(G−1)/D⌉ = <b>${row.bound}</b> (Thm 2.15) — ${row.note}`
+      : `G<sub>${S.r}</sub>(S₀) is not among the values computed in the thesis ` +
+        `(Table 2.1 lists the SAT-computed cases).`;
+
+    // live counts + strip
+    const cv = $('radoStrip');
+    if (!live || degen || S0.length !== S.t) {
+      $('radoCounts').innerHTML = live && degen
+        ? 'counts need a weight with t distinct values (|S_ω| = t, Lemma 2.14)'
+        : 'apply a one-weight colouring in the explorer to scan homothets against its palette χ';
+      const { g, w, h } = fit2d(cv, 40);
+      g.clearRect(0, 0, w, h);
+      g.fillStyle = '#6d7680'; g.font = '11px ui-monospace,monospace';
+      g.fillText('— level strip inactive —', 14, 24);
+      return;
+    }
+    const chi = x => ((S.info.chi(x) % S.r) + S.r) % S.r;
+    const fwd = HJPURE.homothetScan(HJ, S.t, S.n, vals, chi, false);
+    const rfl = HJPURE.homothetScan(HJ, S.t, S.n, vals, chi, true);
+    const gridMono = HJ.monoLines(S.col, HJ.lines(S.t, S.n, 'comb')).length;
+    const agree = (fwd.count > 0) === (gridMono > 0);
+    $('radoCounts').innerHTML =
+      `forward homothets b + k·S (1 ≤ k ≤ ${S.n}, b ∈ ⟨ω, T⟩): ` +
+      `<b>${fwd.count}</b> monochromatic class${fwd.count === 1 ? '' : 'es'} — ` +
+      `grid has <b>${gridMono}</b> mono line${gridMono === 1 ? '' : 's'} ` +
+      (agree ? '<span class="ok">✓ agree (Lemma 2.14)</span>'
+             : '<span class="no">✗ disagree?!</span>') +
+      `<br>reflected copies b + k·(−S) inside Λ_ω(${S.n}): ` +
+      `<b>${rfl.count}</b> monochromatic — invisible to the grid (Ex. 2.20); ` +
+      `freeness for E<sub>s</sub> needs <b>both</b> counts 0` +
+      (fwd.count === 0 && rfl.count > 0
+        ? ' — <b>this palette is line-free yet not solution-free</b>, the gap of Rem. 2.24'
+        : '');
+
+    // strip with the first monochromatic copy of each kind marked
+    const realised = HJ.realizedLevels(S.t, S.n, vals);
+    const lo = Math.min(...realised), hi = Math.max(...realised);
+    const { g, w, h } = fit2d(cv, 74);
+    g.clearRect(0, 0, w, h);
+    const pad = 16, span = Math.max(1, hi - lo), y0 = 34;
+    const X = v => pad + (v - lo) / span * (w - 2 * pad);
+    g.strokeStyle = '#39434e';
+    g.beginPath(); g.moveTo(pad - 6, y0); g.lineTo(w - pad + 6, y0); g.stroke();
+    realised.forEach(v => {
+      g.beginPath(); g.arc(X(v), y0, 4, 0, 7);
+      g.fillStyle = PAL[chi(v)]; g.fill();
+    });
+    const mark = (item, colour, diamond, dy) => {
+      if (!item) return;
+      g.strokeStyle = colour; g.lineWidth = 1.6;
+      const xs = item.levels.map(X);
+      g.beginPath(); g.moveTo(Math.min(...xs), y0 + dy);
+      g.lineTo(Math.max(...xs), y0 + dy); g.stroke();
+      item.levels.forEach(v => {
+        g.beginPath();
+        if (diamond) {
+          g.moveTo(X(v), y0 - 8); g.lineTo(X(v) + 6, y0); g.lineTo(X(v), y0 + 8);
+          g.lineTo(X(v) - 6, y0); g.closePath();
+        } else g.arc(X(v), y0, 7, 0, 7);
+        g.stroke();
+      });
+    };
+    mark(fwd.first, '#e07a72', false, 13);   // first mono forward homothet
+    mark(rfl.first, '#e0b060', true, -13);   // first mono reflected copy
+    g.fillStyle = '#6d7680'; g.font = '10px ui-monospace,monospace';
+    g.fillText(String(lo), pad - 4, y0 + 27);
+    g.fillText(String(hi), w - pad - 10, y0 + 27);
+    if (fwd.first) g.fillText('○ forward (grid line)', pad, 12);
+    if (rfl.first) g.fillText('◇ reflected (Rado-only)', pad + 150, 12);
+  }
+
+  /* ------------------------------------ intersection graph G([t]^n) */
+  let igCache = null, igHover = null;   // {kind:'v'|'e', i}
+  function igBuild() {
+    const S = state();
+    const key = S.t + '|' + S.n;
+    if (igCache && igCache.key === key) return igCache;
+    const lines = HJ.lines(S.t, S.n, 'comb');
+    const sets = lines.map(l => new Set(l.points));
+    const edges = [], starOf = lines.map(() => []), wordEdges = new Map();
+    for (let i = 0; i < lines.length; i++)
+      for (let j = i + 1; j < lines.length; j++) {
+        let word = -1, cnt = 0;
+        for (const p of lines[i].points)
+          if (sets[j].has(p)) { word = p; cnt++; }
+        if (cnt === 0) continue;           // Lemma 7.3: cnt is 0 or 1
+        const e = { a: i, b: j, word };
+        starOf[i].push(edges.length); starOf[j].push(edges.length);
+        if (!wordEdges.has(word)) wordEdges.set(word, []);
+        wordEdges.get(word).push(edges.length);
+        edges.push(e);
+      }
+    igCache = { key, lines, edges, starOf, wordEdges, pos: [] };
+    return igCache;
+  }
+  function drawIGraph() {
+    const cv = $('igraph'); if (!cv) return;
+    const S = state(), col = S.col;
+    const C = igBuild();
+    const { g, w, h } = fit2d(cv, 340);
+    g.clearRect(0, 0, w, h);
+    const W = HJ.words(S.t, S.n);
+
+    if (S.t === 2) {
+      // G_2(n): comparability graph of the Boolean lattice (Prop. 7.1)
+      const byLevel = new Map();
+      W.forEach((wd, i) => {
+        const s = HJ.sigma(wd);
+        if (!byLevel.has(s)) byLevel.set(s, []);
+        byLevel.get(s).push(i);
+      });
+      const levels = [...byLevel.keys()].sort((a, b) => a - b);
+      const pos = new Map();
+      levels.forEach((s, li) => {
+        const row = byLevel.get(s);
+        const y = h - 46 - li * (h - 84) / Math.max(1, levels.length - 1);
+        row.forEach((idx, j) =>
+          pos.set(idx, { x: (j + 1) * w / (row.length + 1), y }));
+      });
+      const chain = [];                          // 1^n, 21^{n−1}, …, 2^n
+      for (let k = 0; k <= S.n; k++) {
+        const wd = Array.from({ length: S.n }, (_, i) => i < k ? 2 : 1);
+        chain.push(HJ.wordIndex(wd, 2));
+      }
+      const inChain = (a, b) => {
+        const ia = chain.indexOf(a), ib = chain.indexOf(b);
+        return ia >= 0 && ib >= 0;
+      };
+      C.lines.forEach(l => {
+        const [a, b] = l.points;
+        const A = pos.get(a), B = pos.get(b);
+        const mono = col[a] === col[b];
+        g.strokeStyle = mono ? PAL[col[a]] : 'rgba(139,161,184,.25)';
+        g.lineWidth = mono ? 2.3 : 1;
+        g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
+        if (inChain(a, b)) {
+          g.strokeStyle = 'rgba(233,228,214,.9)'; g.lineWidth = 1.4;
+          g.setLineDash([5, 4]);
+          g.beginPath(); g.moveTo(A.x, A.y); g.lineTo(B.x, B.y); g.stroke();
+          g.setLineDash([]);
+        }
+      });
+      W.forEach((wd, i) => {
+        const P = pos.get(i);
+        g.beginPath(); g.arc(P.x, P.y, 8, 0, 7);
+        g.fillStyle = PAL[col[i]]; g.fill();
+        if (chain.includes(i)) {
+          g.strokeStyle = '#e9e4d6'; g.lineWidth = 1.6;
+          g.beginPath(); g.arc(P.x, P.y, 11, 0, 7); g.stroke();
+        }
+      });
+      igCache.pos = pos;
+      $('igraphInfo').innerHTML =
+        `G₂(${S.n}) = comparability graph of the Boolean lattice: vertices = the ` +
+        `${W.length} words, edges = the ${C.lines.length} lines (comparable pairs). ` +
+        `Dashed: a maximal chain w₀ &lt; … &lt; w_${S.n} — a clique K_${S.n + 1}, ` +
+        `so χ = ${S.n + 1} by Mirsky and <b>HJ(2, r) = r</b> (Prop. 7.1, Rem. 7.2). ` +
+        `Coloured edges are monochromatic lines.`;
+      return;
+    }
+
+    // t ≥ 3: vertices are the lines, on a circle; edges carry c̃(e) = c(x_e)
+    const N = C.lines.length, cx = w / 2, cy = h / 2 + 4,
+          R = Math.min(w, h) / 2 - 34;
+    const order = C.lines.map((l, i) => i)
+      .sort((a, b) => (C.lines[a].active.length - C.lines[b].active.length) ||
+                      (C.lines[a].label < C.lines[b].label ? -1 : 1));
+    const pos = new Array(N);
+    order.forEach((li, j) => {
+      const a = -Math.PI / 2 + 2 * Math.PI * j / N;
+      pos[li] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
+    });
+    const hovV = igHover && igHover.kind === 'v' ? igHover.i : -1;
+    const hovClass = igHover && igHover.kind === 'e'
+      ? new Set(C.wordEdges.get(C.edges[igHover.i].word)) : null;
+    C.edges.forEach((e, ei) => {
+      const hot = e.a === hovV || e.b === hovV || (hovClass && hovClass.has(ei));
+      g.strokeStyle = PAL[col[e.word]];
+      g.globalAlpha = hot ? 0.95 : 0.16;
+      g.lineWidth = hot ? 2.3 : 1;
+      g.beginPath(); g.moveTo(pos[e.a].x, pos[e.a].y);
+      g.lineTo(pos[e.b].x, pos[e.b].y); g.stroke();
+    });
+    g.globalAlpha = 1;
+    C.lines.forEach((l, i) => {
+      const mono = l.points.every(p => col[p] === col[l.points[0]]);
+      g.beginPath(); g.arc(pos[i].x, pos[i].y, i === hovV ? 6 : 4.3, 0, 7);
+      g.fillStyle = mono ? PAL[col[l.points[0]]] : '#242d36'; g.fill();
+      g.strokeStyle = mono ? '#e9e4d6' : '#4a5561';
+      g.lineWidth = mono ? 1.6 : 1; g.stroke();
+    });
+    igCache.pos = pos;
+    const lam = W.map(wd => HJ.typeOf(wd, S.t)
+      .reduce((s, m) => s + (m ? Math.pow(2, m) - 1 : 0), 0));
+    const base = `G([${S.t}]${'⁰¹²³'[S.n]}): |V| = ${N} lines, |E| = ${C.edges.length} ` +
+      `intersecting pairs, each edge coloured by its word, c̃(e) = c(x_e). ` +
+      `λ(x) ∈ [${Math.min(...lam)}, ${Math.max(...lam)}] (Lemma 7.4: n ≤ λ ≤ 2ⁿ−1). ` +
+      `No K⁽${S.t}⁾_${S.t + 1} (Prop. 7.7)` +
+      (S.t === 3 ? ', no Fano (Prop. 7.8).' : '.');
+    if (hovV >= 0) {
+      const l = C.lines[hovV];
+      const starCols = new Set(C.starOf[hovV].map(ei => col[C.edges[ei].word]));
+      const sm = starCols.size === 1 && C.starOf[hovV].length > 0;
+      const lm = l.points.every(p => col[p] === col[l.points[0]]);
+      HJX.boostWords(l.points);
+      $('igraphInfo').innerHTML =
+        `line <b>${l.label}</b> — star of ${C.starOf[hovV].length} edges over its ` +
+        `${S.t} words; star monochromatic: <b>${sm ? 'yes' : 'no'}</b> ⇔ line ` +
+        `monochromatic: <b>${lm ? 'yes' : 'no'}</b> ` +
+        (sm === lm ? '<span class="ok">✓ (Lemma 7.5)</span>'
+                   : '<span class="no">✗</span>');
+    } else if (hovClass) {
+      const e = C.edges[igHover.i];
+      HJX.boostWords([e.word]);
+      $('igraphInfo').innerHTML =
+        `edge at word <b>${W[e.word].join('')}</b>, colour ${col[e.word]} — its ` +
+        `<b>coherence class</b> has ${hovClass.size} edges sharing this word: any ` +
+        `graph reformulation of HJ must carry this constraint (Prop. 7.6).`;
+    } else $('igraphInfo').innerHTML = base;
+  }
+  function igHit(x, y) {
+    if (!igCache || !igCache.pos) return null;
+    const S = state();
+    if (S.t === 2) return null;
+    let best = null, bd = 81;
+    igCache.lines.forEach((l, i) => {
+      const P = igCache.pos[i];
+      const d = (x - P.x) ** 2 + (y - P.y) ** 2;
+      if (d < bd) { bd = d; best = { kind: 'v', i }; }
+    });
+    if (best) return best;
+    let be = null, bde = 6;
+    igCache.edges.forEach((e, ei) => {
+      const A = igCache.pos[e.a], B = igCache.pos[e.b];
+      const vx = B.x - A.x, vy = B.y - A.y, L2 = vx * vx + vy * vy || 1e-9;
+      let s = ((x - A.x) * vx + (y - A.y) * vy) / L2;
+      s = Math.max(0, Math.min(1, s));
+      const d = Math.hypot(x - A.x - s * vx, y - A.y - s * vy);
+      if (d < bde) { bde = d; be = { kind: 'e', i: ei }; }
+    });
+    return be;
+  }
+
+  /* -------------------------------------- corner hypergraph C^(t)_n */
+  let chCache = null, chHoverCell = null, chHoverTuple = null, k4on = false;
+  function cellLayout(t, n, w, h) {
+    const pos = new Map(), pad = 22;
+    if (t === 2) {
+      const cells = HJ.simplex(2, n), cx = w / 2, cy = h / 2 + 6,
+            R = Math.min(w, h) / 2 - 40;
+      cells.sort((a, b) => a[1] - b[1]).forEach((c, j) => {
+        const a = -Math.PI / 2 + 2 * Math.PI * j / cells.length;
+        pos.set(esc(c), { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a), c });
+      });
+      return { pos, rad: 10 };
+    }
+    if (t === 3) {
+      const A = { x: pad + 8, y: h - 34 }, B = { x: w - pad - 8, y: h - 34 },
+            C = { x: w / 2, y: 26 };
+      const m = Math.max(1, n);
+      for (const c of HJ.simplex(3, n)) {
+        const x = (c[0] * A.x + c[1] * B.x + c[2] * C.x) / m,
+              y = (c[0] * A.y + c[1] * B.y + c[2] * C.y) / m;
+        pos.set(esc(c), n === 0
+          ? { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3, c }
+          : { x, y, c });
+      }
+      return { pos, rad: Math.min(10, (B.x - A.x) / (3 * (n + 1))) };
+    }
+    const slices = n + 1, sw = (w - 2 * pad) / slices;   // t = 4
+    for (let m4 = 0; m4 <= n; m4++) {
+      const x0 = pad + m4 * sw, size = n - m4;
+      const A = { x: x0 + 8, y: h - 44 }, B = { x: x0 + sw - 16, y: h - 44 },
+            C = { x: x0 + sw / 2 - 4, y: 28 };
+      const mm = Math.max(1, size);
+      for (const c3 of HJ.simplex(3, size)) {
+        const cell = [c3[0], c3[1], c3[2], m4];
+        const x = (c3[0] * A.x + c3[1] * B.x + c3[2] * C.x) / mm,
+              y = (c3[0] * A.y + c3[1] * B.y + c3[2] * C.y) / mm;
+        pos.set(esc(cell), size === 0
+          ? { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3, c: cell }
+          : { x, y, c: cell });
+      }
+    }
+    return { pos, rad: 7, slices: true };
+  }
+  function chBuild(w, h) {
+    const S = state();
+    const key = S.t + '|' + S.n + '|' + w;
+    if (chCache && chCache.key === key) return chCache;
+    const lay = cellLayout(S.t, S.n, w, h);
+    const tuples = HJ.cornerTuples(S.t, S.n).map(ct => {
+      const keys = ct.cells.map(esc);
+      const pts = keys.map(k => lay.pos.get(k));
+      return { k: ct.k, v: ct.v, keys, pts,
+               cx: pts.reduce((s, p) => s + p.x, 0) / pts.length,
+               cy: pts.reduce((s, p) => s + p.y, 0) / pts.length };
+    });
+    const pencil = new Map();
+    tuples.forEach((tp, i) => tp.keys.forEach(k => {
+      if (!pencil.has(k)) pencil.set(k, []);
+      pencil.get(k).push(i);
+    }));
+    chCache = { key, lay, tuples, pencil };
+    return chCache;
+  }
+  function k4Tuples(t, n) {                       // Prop. 7.26
+    if (n < 2) return null;
+    const v0 = new Array(t).fill(0); v0[0] = n - 2;
+    const list = [{ k: 2, v: v0.slice() }];
+    for (let a = 0; a < t; a++) {
+      const v = v0.slice(); v[a] += 1; list.push({ k: 1, v });
+    }
+    return list.map(x => x.k + '|' + esc(x.v));
+  }
+  function factorial(m) { let r = 1; for (let i = 2; i <= m; i++) r *= i; return r; }
+  function drawCHyper() {
+    const cv = $('chyper'); if (!cv) return;
+    const S = state();
+    const { g, w, h } = fit2d(cv, 340);
+    g.clearRect(0, 0, w, h);
+    const C = chBuild(w, h);
+    const descent = HJ.descentOf(S.col, S.t, S.n);
+    const k4 = k4on ? k4Tuples(S.t, S.n) : null;
+    const k4set = k4 ? new Set(k4) : null;
+    const sharedCells = new Set();
+    if (k4) {
+      const tks = C.tuples.filter(tp => k4set.has(tp.k + '|' + esc(tp.v)));
+      for (let i = 0; i < tks.length; i++)
+        for (let j = i + 1; j < tks.length; j++)
+          tks[i].keys.forEach(kk => { if (tks[j].keys.includes(kk)) sharedCells.add(kk); });
+    }
+    let monoCount = 0;
+    C.tuples.forEach((tp, i) => {
+      const mono = descent && tp.keys.every(k => descent.get(k) === descent.get(tp.keys[0]));
+      if (mono) monoCount++;
+      const hot = chHoverTuple === i ||
+        (chHoverCell !== null && C.pencil.get(chHoverCell).includes(i));
+      const special = k4set && k4set.has(tp.k + '|' + esc(tp.v));
+      g.beginPath();
+      tp.pts.forEach((p, j) => j ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y));
+      g.closePath();
+      if (mono) {
+        const c = PAL[descent.get(tp.keys[0])];
+        g.fillStyle = c + '38'; g.fill();
+        g.strokeStyle = c; g.lineWidth = 2;
+      } else {
+        g.strokeStyle = 'rgba(139,161,184,.3)'; g.lineWidth = 1;
+      }
+      if (hot) { g.strokeStyle = '#e9e4d6'; g.lineWidth = 2.2; }
+      if (special) { g.setLineDash([6, 4]); g.strokeStyle = '#e9e4d6'; g.lineWidth = 2.4; }
+      g.stroke(); g.setLineDash([]);
+    });
+    const mixed = new Map();
+    if (!descent) HJ.words(S.t, S.n).forEach((wd, i) => {
+      const k = esc(HJ.typeOf(wd, S.t));
+      if (!mixed.has(k)) mixed.set(k, new Set());
+      mixed.get(k).add(S.col[i]);
+    });
+    for (const [key, P] of C.lay.pos) {
+      g.beginPath(); g.arc(P.x, P.y, C.lay.rad, 0, 7);
+      if (descent) { g.fillStyle = PAL[descent.get(key)]; g.fill(); }
+      else {
+        const set = mixed.get(key);
+        if (set.size === 1) { g.fillStyle = PAL[[...set][0]]; g.fill(); }
+        else {
+          g.fillStyle = '#242d36'; g.fill();
+          g.strokeStyle = '#4a5561'; g.lineWidth = 1.2;
+          g.beginPath(); g.moveTo(P.x - 4, P.y + 4); g.lineTo(P.x + 4, P.y - 4); g.stroke();
+        }
+      }
+      if (sharedCells.has(key) || chHoverCell === key) {
+        g.strokeStyle = '#e9e4d6'; g.lineWidth = 1.8;
+        g.beginPath(); g.arc(P.x, P.y, C.lay.rad + 3.5, 0, 7); g.stroke();
+      }
+    }
+    if (C.lay.slices) {
+      g.fillStyle = '#6d7680'; g.font = '10px ui-monospace,monospace';
+      const sw = (w - 44) / (S.n + 1);
+      for (let m4 = 0; m4 <= S.n; m4++)
+        g.fillText('a₄=' + m4, 22 + m4 * sw + sw / 2 - 14, h - 20);
+    }
+    // info lines
+    const nb = HJ.binom;
+    $('chyperStats').innerHTML =
+      `|V| = C(${S.n + S.t - 1},${S.t - 1}) = <b>${nb(S.n + S.t - 1, S.t - 1)}</b> cells · ` +
+      `|E| = C(${S.n + S.t - 1},${S.t}) = <b>${nb(S.n + S.t - 1, S.t)}</b> corner tuples · ` +
+      `every cell in exactly n = ${S.n} edges, distinct edges share ≤ 1 cell ` +
+      `(Lemmas 7.19, 7.12)` +
+      (descent
+        ? ` · monochromatic tuples: <b>${monoCount}</b> — the descent is a proper weak ` +
+          `colouring of C⁽${S.t}⁾_${S.n} ⇔ this is 0 (Thm 7.21 ii)`
+        : ` · <span style="color:var(--faint)">colouring not symmetric — C⁽ᵗ⁾ₙ is ` +
+          `coloured by descents (Lemma 2.4); mixed cells grey</span>`);
+    const b = $('b-k4');
+    if (b) {
+      b.disabled = S.n < 2;
+      b.textContent = (k4on ? 'hide' : 'show') + ` the clean K_${S.t + 1} (Prop. 7.26)`;
+    }
+    if (chHoverCell !== null) {
+      const cell = C.lay.pos.get(chHoverCell).c;
+      const orbit = factorial(S.n) / cell.reduce((p, a) => p * factorial(a), 1);
+      const idxs = [];
+      HJ.words(S.t, S.n).forEach((wd, i) => {
+        if (esc(HJ.typeOf(wd, S.t)) === chHoverCell) idxs.push(i);
+      });
+      HJX.boostWords(idxs);
+      $('chyperInfo').innerHTML =
+        `cell (${cell.join(',')}) — orbit of ${orbit} word${orbit > 1 ? 's' : ''}; its ` +
+        `<b>pencil</b> is the ${S.n} highlighted tuples, pairwise meeting only here: ` +
+        `a complete K_${S.n} (Lemma 7.19).`;
+    } else if (chHoverTuple !== null) {
+      const tp = C.tuples[chHoverTuple];
+      const orbitLines = factorial(S.n) /
+        (factorial(tp.k) * tp.v.reduce((p, a) => p * factorial(a), 1));
+      const idxs = new Set();
+      HJ.words(S.t, S.n).forEach((wd, i) => {
+        if (tp.keys.includes(esc(HJ.typeOf(wd, S.t)))) idxs.add(i);
+      });
+      HJX.boostWords([...idxs]);
+      $('chyperInfo').innerHTML =
+        `C<sub>k,v</sub> with k = ${tp.k}, v = (${tp.v.join(',')}) — the S<sub>n</sub>-orbit ` +
+        `of <b>${orbitLines}</b> line${orbitLines > 1 ? 's' : ''}; monochromatic ⇔ every ` +
+        `line of the orbit is (Prop. 7.13).`;
+    } else if (k4on && S.n >= 2) {
+      $('chyperInfo').innerHTML =
+        `dashed: B = C<sub>2,v₀</sub> and A<sub>a</sub> = C<sub>1,v₀+e_a</sub> with ` +
+        `v₀ = (n−2)e₁ — pairwise intersections A_a∩B = {v₀+2e_a}, A_a∩A_b = {v₀+e_a+e_b} ` +
+        `are the ${sharedCells.size} ringed cells, all distinct: a loopless cell-rainbow ` +
+        `K_${S.t + 1} in every dimension (Prop. 7.26).`;
+    } else {
+      $('chyperInfo').innerHTML =
+        `hover a cell (its pencil, Lemma 7.19) or a tuple (its line orbit, Prop. 7.13)` +
+        (S.t === 3 ? ' — for t = 3 these are the upward triangles of the corners ' +
+                     'configuration (Ajtai–Szemerédi, Def. 7.18)' : '') + '.';
+    }
+    const lll = 2 + Math.floor((Math.pow(S.r, S.t - 1) / Math.E - 1) / S.t);
+    const el = $('lllVal');
+    if (el) el.innerHTML = `at the current (t, r) = (${S.t}, ${S.r}): ` +
+      `HJ<sub>sym</sub> ≥ 2 + ⌊(r<sup>t−1</sup>/e − 1)/t⌋ = <b>${lll}</b>` +
+      (lll <= 2 ? ' — vacuous at small parameters (Rem. 7.29); the bound is asymptotic in r'
+                : '');
+  }
+  function chHit(x, y) {
+    if (!chCache) return { cell: null, tuple: null };
+    for (const [key, P] of chCache.lay.pos)
+      if (Math.hypot(x - P.x, y - P.y) <= chCache.lay.rad + 4)
+        return { cell: key, tuple: null };
+    let best = null, bd = 15;
+    chCache.tuples.forEach((tp, i) => {
+      const d = Math.hypot(x - tp.cx, y - tp.cy);
+      if (d < bd) { bd = d; best = i; }
+    });
+    return { cell: null, tuple: best };
+  }
+
+  /* ------------------------------------------------------- wiring */
+  function bindCanvas(cv, onMove, onLeave) {
+    if (!cv) return;
+    cv.addEventListener('mousemove', e => {
+      const r = cv.getBoundingClientRect();
+      onMove(e.clientX - r.left, e.clientY - r.top);
+    });
+    cv.addEventListener('mouseleave', onLeave);
+  }
+  bindCanvas($('igraph'), (x, y) => {
+    const hit = igHit(x, y);
+    const same = JSON.stringify(hit) === JSON.stringify(igHover);
+    if (!same) { igHover = hit; drawIGraph(); if (!hit) HJX.clearBoost(); }
+  }, () => { igHover = null; HJX.clearBoost(); drawIGraph(); });
+  bindCanvas($('chyper'), (x, y) => {
+    const hit = chHit(x, y);
+    if (hit.cell !== chHoverCell || hit.tuple !== chHoverTuple) {
+      chHoverCell = hit.cell; chHoverTuple = hit.tuple;
+      if (!hit.cell && hit.tuple === null) HJX.clearBoost();
+      drawCHyper();
+    }
+  }, () => { chHoverCell = null; chHoverTuple = null; HJX.clearBoost(); drawCHyper(); });
+  const bk4 = $('b-k4');
+  if (bk4) bk4.addEventListener('click', () => { k4on = !k4on; drawCHyper(); });
+
+  function updateAll() {
+    igCache = null; chCache = null;      // parameters/colours may have changed
+    igHover = null; chHoverCell = null; chHoverTuple = null;
+    drawIGraph(); drawCHyper(); updateRado();
+  }
+  HJX.onRefresh.push(updateAll);
+  ['igraph', 'chyper', 'radoStrip'].forEach(id => {
+    const el = $(id);
+    if (el) new ResizeObserver(() => { igCache = null; chCache = null;
+      drawIGraph(); drawCHyper(); updateRado(); }).observe(el);
+  });
+  updateAll();
+})();
+
+</script>
+</body>
+</html>
