@@ -1,4 +1,4 @@
-# The Hales–Jewett Explorer - AI assisted
+# The Hales–Jewett Explorer
 
 An interactive companion to the thesis **“Improving Bounds on Hales–Jewett Numbers:
 Symmetric Colorings, SAT Solvers, Line-Family Variants, and Forcing Structures”**
