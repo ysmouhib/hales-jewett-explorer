@@ -4,7 +4,7 @@ An interactive companion to the thesis **“Improving Bounds on Hales–Jewett N
 Symmetric Colorings, SAT Solvers, Line-Family Variants, and Forcing Structures”**
 (Y. Mouhib, ETH Zürich, 2026).
 
-Live site (once deployed): **https://ysmouhib.github.io/hales-jewett-explorer/**
+Live site: **https://ysmouhib.github.io/hales-jewett-explorer/**
 
 One self-contained page, `index.html`, that lets you
 
