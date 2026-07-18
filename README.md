@@ -6,6 +6,16 @@ Symmetric Colorings, SAT Solvers, Line-Family Variants, and Forcing Structures�
 
 Live site: **https://ysmouhib.github.io/hales-jewett-explorer/**
 
+[![CI](https://github.com/ysmouhib/hales-jewett-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/ysmouhib/hales-jewett-explorer/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live%20demo-ysmouhib.github.io-1f6feb)](https://ysmouhib.github.io/hales-jewett-explorer/)
+
+<p align="center">
+  <a href="https://ysmouhib.github.io/hales-jewett-explorer/">
+    <img src="docs/img/explorer-demo.gif" width="960"
+         alt="The explorer at work: repainting [3]³ — the grid, the live family census and the monochromatic-line list update on every colouring">
+  </a>
+</p>
+
 One self-contained page, `index.html`, that lets you
 
 * explore the grid **[t]ⁿ** in 2D/3D for t ∈ {2,3,4}, n ∈ {1,2,3}, r ∈ {1,…,6}
