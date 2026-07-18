@@ -8,6 +8,7 @@ Live site: **https://ysmouhib.github.io/hales-jewett-explorer/**
 
 [![CI](https://github.com/ysmouhib/hales-jewett-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/ysmouhib/hales-jewett-explorer/actions/workflows/ci.yml)
 [![Live demo](https://img.shields.io/badge/live%20demo-ysmouhib.github.io-1f6feb)](https://ysmouhib.github.io/hales-jewett-explorer/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 <p align="center">
   <a href="https://ysmouhib.github.io/hales-jewett-explorer/">
