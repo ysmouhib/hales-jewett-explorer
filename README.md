@@ -11,7 +11,7 @@ Live site: **https://ysmouhib.github.io/hales-jewett-explorer/**
 
 <p align="center">
   <a href="https://ysmouhib.github.io/hales-jewett-explorer/">
-    <img src="docs/img/explorer-demo.gif" width="960"
+    <img src="explorer-demo.gif" width="960"
          alt="The explorer at work: repainting [3]³ — the grid, the live family census and the monochromatic-line list update on every colouring">
   </a>
 </p>
