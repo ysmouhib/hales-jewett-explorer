@@ -1,0 +1,20 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Python verification battery (stdlib only)
+        working-directory: python
+        run: python3 test_hj.py
+      - name: JS core tests — counts vs §6.1 formulas
+        run: node js/test-core.js
+      - name: JS extras tests
+        run: node js/test-extras.js
